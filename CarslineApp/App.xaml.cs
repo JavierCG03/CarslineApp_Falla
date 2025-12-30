@@ -16,5 +16,6 @@ namespace CarslineApp
                 BarTextColor = Colors.White
             };
         }
+
     }
 }

@@ -467,8 +467,6 @@ namespace CarslineApp.ViewModels.ViewModelsHome
             OnPropertyChanged(nameof(MensajeNoTrabajos));
         }
 
-
-
         private async Task OnLogout()
         {
             bool confirm = await Application.Current.MainPage.DisplayAlert(
