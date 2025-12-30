@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CarslineApp.Views.AdminHomePage"
+             Shell.NavBarIsVisible="False"
+             NavigationPage.HasNavigationBar="False"
+             Title="Panel de Administrador">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <Frame BackgroundColor="#512BD4" Padding="20" HasShadow="True">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="ADMINISTRADOR"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           TextColor="White"/>
+                    <Label Text="{Binding NombreUsuarioActual}"
+                           FontSize="16"
+                           TextColor="White"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Label Text="Menu Principal"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   TextColor="#512BD4"/>
+
+            <!-- GRID ACTUALIZADO CON 3 COLUMNAS -->
+            <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto" ColumnSpacing="10">
+                <Button Grid.Column="0"
+                        Text="VER USUARIOS"
+                        Command="{Binding VerUsuariosCommand}"
+                        BackgroundColor="#512BD4"
+                        TextColor="White"
+                        HeightRequest="60"/>
+
+                <!-- NUEVO BOTÓN DE INVENTARIO -->
+                <Button Grid.Column="1"
+                        Text="INVENTARIO"
+                        Command="{Binding VerInventarioCommand}"
+                        BackgroundColor="#3498DB"
+                        TextColor="White"
+                        HeightRequest="60"/>
+
+                <Button Grid.Column="2"
+                        Text="CERRAR SESION"
+                        Command="{Binding LogoutCommand}"
+                        BackgroundColor="#404040"
+                        TextColor="White"
+                        HeightRequest="60"/>
+            </Grid>
+
+            <Label Text="Crear Nuevo Usuario"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   TextColor="#512BD4"
+                   Margin="0,20,0,0"/>
+
+            <Frame BackgroundColor="White" Padding="20" HasShadow="True">
+                <VerticalStackLayout Spacing="15">
+
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Nombre Completo"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#404040"/>
+                        <Entry Text="{Binding NuevoNombreCompleto}"
+                               Placeholder="Ej: Juan Perez Garcia"
+                               BackgroundColor="White"
+                               TextColor="Black"
+                               PlaceholderColor="#919191"/>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Nombre de Usuario"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#404040"/>
+                        <Entry Text="{Binding NuevoNombreUsuario}"
+                               Placeholder="Ej: jperez"
+                               BackgroundColor="White"
+                               TextColor="Black"
+                               PlaceholderColor="#919191"/>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Contrasena"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#404040"/>
+                        <Entry Text="{Binding NuevaPassword}"
+                               Placeholder="Minimo 6 caracteres"
+                               IsPassword="True"
+                               BackgroundColor="White"
+                               TextColor="Black"
+                               PlaceholderColor="#919191"/>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="Tipo de Usuario"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#404040"/>
+                        <Picker ItemsSource="{Binding RolesDisponibles}"
+                                ItemDisplayBinding="{Binding NombreRol}"
+                                SelectedItem="{Binding RolSeleccionado}"
+                                Title="Selecciona un tipo"
+                                BackgroundColor="White"
+                                TextColor="Black"/>
+                    </VerticalStackLayout>
+
+                    <Label Text="{Binding ErrorMessage}"
+                           TextColor="Red"
+                           FontSize="12"
+                           IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}"
+                           HorizontalOptions="Center"/>
+
+                    <Label Text="{Binding SuccessMessage}"
+                           TextColor="Green"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           IsVisible="{Binding SuccessMessage, Converter={StaticResource StringNotEmptyConverter}}"
+                           HorizontalOptions="Center"/>
+
+                    <Button Text="CREAR USUARIO"
+                            Command="{Binding CrearUsuarioCommand}"
+                            BackgroundColor="#512BD4"
+                            TextColor="White"
+                            FontAttributes="Bold"
+                            HeightRequest="50"
+                            Margin="0,10,0,0"/>
+
+                    <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                       IsVisible="{Binding IsLoading}"
+                                       Color="#512BD4"
+                                       HorizontalOptions="Center"/>
+
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CarslineApp.Views.ChecksList.CheckListReparacion"
+             Title="Reparación"
+             Shell.NavBarIsVisible="False"
+             NavigationPage.HasNavigationBar="False">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <Label Text="Vehículo"
+                   FontAttributes="Bold"/>
+            <Label x:Name="lblVehiculo"
+                   FontSize="16"/>
+            
+            <Label x:Name="lblTrabajo"
+                   FontSize="16"
+                   FontAttributes="Bold"/>
+
+            <Label Text="Indicaciones del Trabajo"
+                   FontAttributes="Bold"/>
+            <Label x:Name="lblindicacionesTrabajo"
+                   FontSize="14"/>
+            
+            <Label Text="Comentario de reparación"
+                   FontAttributes="Bold"/>
+
+            <Editor x:Name="txtComentarioReparacion"
+                    Placeholder="Describe la reparación realizada"
+                    AutoSize="TextChanges"
+                    HeightRequest="120"/>
+
+            <Label Text="Comentarios generales"
+                   FontAttributes="Bold"/>
+
+            <Editor x:Name="txtComentarioGeneral"
+                    Placeholder="Observaciones adicionales"
+                    AutoSize="TextChanges"
+                    HeightRequest="120"/>
+
+            <Grid ColumnDefinitions="*,*">
+
+                <Button Grid.Column="0"
+                    Text="⏸️ Pausar Trabajo"
+                    Clicked="PausarTrabajo_Clicked"
+                    BackgroundColor="#E67E22"
+                    TextColor="White"/>
+                <Button Grid.Column="1"
+                    Text="✅ Finalizar  Trabajo"
+                    Clicked="FinalizarTrabajo_Clicked"
+                    BackgroundColor="#2E7D32"
+                    TextColor="White"/>
+
+            </Grid>
+
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
