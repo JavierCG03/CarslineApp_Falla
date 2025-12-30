@@ -333,6 +333,22 @@ namespace CarslineApp.Models
                     return $"{duracion.Minutes}m";
             }
         }
+        public string BorderColor => TipoOrden switch
+        {
+            1 => "#D60000",  // Servicio
+            2 => "#2196F3",  // Diagnóstico
+            3 => "#FFA000",  // Reparación
+            4 => "#4CAF50",  // Garantía
+            5 => "#9C27B0",  // Reacondicionamiento
+            _ => "#888888"
+        };
+
+        // Determinar si se muestra fecha completa o solo hora
+        public bool MostrarFecha => TipoOrden != 1;
+        public bool MostrarSoloHora => TipoOrden == 1;
+
+        // Fecha y hora combinada
+        public string FechaHoraCompleta => $"{FechaFormateada} {HoraFormateada}";
     }
     public class TrabajoResponse
     {

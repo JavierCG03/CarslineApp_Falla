@@ -16,13 +16,8 @@ namespace CarslineApp.ViewModels.ViewModelsHome
         private bool _isLoading;
         private string _nombreUsuarioActual = string.Empty;
 
-
-        private ObservableCollection<MiTrabajoDto> _trabajosServicio = new();
-        private ObservableCollection<MiTrabajoDto> _trabajosReparacion = new();
-        private ObservableCollection<MiTrabajoDto> _trabajosDiagnostico = new();
-        private ObservableCollection<MiTrabajoDto> _trabajosGarantia = new();
-        private ObservableCollection<MiTrabajoDto> _trabajosReacondicionamiento = new();
-
+        // ✅ LISTA ÚNICA AGRUPADA
+        private ObservableCollection<GrupoTrabajos> _todosLosTrabajos = new();
 
         public TecnicoMainViewModel()
         {
@@ -41,7 +36,6 @@ namespace CarslineApp.ViewModels.ViewModelsHome
             IniciarTrabajoCommand = new Command<MiTrabajoDto>(async (trabajo) => await IniciarTrabajo(trabajo));
             ReanudarTrabajoCommand = new Command<MiTrabajoDto>(async (trabajo) => await ReanudarTrabajo(trabajo));
 
-            // Solo cargar nombre de usuario aquí
             NombreUsuarioActual = Preferences.Get("user_name", "Tecnico");
         }
 
@@ -70,13 +64,11 @@ namespace CarslineApp.ViewModels.ViewModelsHome
                 OnPropertyChanged(nameof(EsPausado));
                 OnPropertyChanged(nameof(EsFinalizado));
                 OnPropertyChanged(nameof(MensajeNoTrabajos));
-                OnPropertyChanged(nameof(NoHayTrabajos));
             }
         }
 
         public string TituloSeccion => EstadoTrabajoSeleccionado switch
         {
-
             2 => "PENDIENTES",
             5 => "PAUSADOS",
             4 => "FINALIZADOS",
@@ -93,47 +85,19 @@ namespace CarslineApp.ViewModels.ViewModelsHome
             set { _isLoading = value; OnPropertyChanged(); }
         }
 
-        public ObservableCollection<MiTrabajoDto> TrabajosServicio
+        // ✅ LISTA ÚNICA OBSERVABLE
+        public ObservableCollection<GrupoTrabajos> TodosLosTrabajos
         {
-            get => _trabajosServicio;
-            set { _trabajosServicio = value; OnPropertyChanged(); }
+            get => _todosLosTrabajos;
+            set
+            {
+                _todosLosTrabajos = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(NoHayTrabajos));
+            }
         }
 
-        public ObservableCollection<MiTrabajoDto> TrabajosReparacion
-        {
-            get => _trabajosReparacion;
-            set { _trabajosReparacion = value; OnPropertyChanged(); }
-        }
-        public ObservableCollection<MiTrabajoDto> TrabajosDiagnostico
-        {
-            get => _trabajosDiagnostico;
-            set { _trabajosDiagnostico = value; OnPropertyChanged(); }
-        }
-        public ObservableCollection<MiTrabajoDto> TrabajosGarantia
-        {
-            get => _trabajosGarantia;
-            set { _trabajosGarantia = value; OnPropertyChanged(); }
-        }
-        public ObservableCollection<MiTrabajoDto> TrabajosReacondicionamiento
-        {
-            get => _trabajosReacondicionamiento;
-            set { _trabajosReacondicionamiento = value; OnPropertyChanged(); }
-        }
-
-
-
-        public bool HayTrabajosServicio => TrabajosServicio.Any();
-        public bool HayTrabajosReparacion => TrabajosReparacion.Any();
-        public bool HayTrabajosDiagnostico => TrabajosDiagnostico.Any();
-        public bool HayTrabajosGarantia => TrabajosGarantia.Any();
-        public bool HayTrabajosReacondicionamiento => TrabajosReacondicionamiento.Any();
-
-        // 🆕 Propiedades para mostrar mensaje cuando no hay trabajos
-        public bool NoHayTrabajos => !HayTrabajosServicio &&
-                                     !HayTrabajosReparacion &&
-                                     !HayTrabajosDiagnostico &&
-                                     !HayTrabajosGarantia &&
-                                     !HayTrabajosReacondicionamiento;
+        public bool NoHayTrabajos => !TodosLosTrabajos.Any(g => g.Any());
 
         public string MensajeNoTrabajos => EstadoTrabajoSeleccionado switch
         {
@@ -155,11 +119,10 @@ namespace CarslineApp.ViewModels.ViewModelsHome
         public ICommand IniciarTrabajoCommand { get; }
         public ICommand ReanudarTrabajoCommand { get; }
 
-
-
         #endregion
 
-        #region Métodos
+        #region Métodos de Navegación
+
         private async Task NavegarACheckList(MiTrabajoDto trabajo)
         {
             await Application.Current.MainPage.Navigation.PushAsync(
@@ -171,6 +134,7 @@ namespace CarslineApp.ViewModels.ViewModelsHome
                 )
             );
         }
+
         private async Task NavegarACheckListReparacion(MiTrabajoDto trabajo)
         {
             await Application.Current.MainPage.Navigation.PushAsync(
@@ -181,9 +145,9 @@ namespace CarslineApp.ViewModels.ViewModelsHome
                     trabajo.VehiculoCompleto,
                     trabajo.IndicacionesTrabajo
                 )
-
             );
         }
+
         private async Task NavegarACheckListDiagnostico(MiTrabajoDto trabajo)
         {
             await Application.Current.MainPage.Navigation.PushAsync(
@@ -194,9 +158,9 @@ namespace CarslineApp.ViewModels.ViewModelsHome
                     trabajo.VehiculoCompleto,
                     trabajo.IndicacionesTrabajo
                 )
-
             );
         }
+
         private async Task NavegarACheckListGarantia(MiTrabajoDto trabajo)
         {
             await Application.Current.MainPage.Navigation.PushAsync(
@@ -209,6 +173,7 @@ namespace CarslineApp.ViewModels.ViewModelsHome
                 )
             );
         }
+
         private async Task NavegarACheckListReacondicionamiento()
         {
             await Application.Current.MainPage.Navigation.PushAsync(
@@ -216,6 +181,9 @@ namespace CarslineApp.ViewModels.ViewModelsHome
             );
         }
 
+        #endregion
+
+        #region Carga de Datos
 
         private async void CambiarEstadoTrabajo(int estadoTrabajo)
         {
@@ -237,134 +205,104 @@ namespace CarslineApp.ViewModels.ViewModelsHome
                 );
 
                 if (response == null || response.Trabajos == null)
-                    return;
-
-                // 🔹 LIMPIAR LISTAS
-                TrabajosServicio.Clear();
-                TrabajosDiagnostico.Clear();
-                TrabajosReparacion.Clear();
-                TrabajosGarantia.Clear();
-                TrabajosReacondicionamiento.Clear();
-
-                // 🔹 SEPARAR POR TIPO DE ORDEN
-                foreach (var trabajo in response.Trabajos)
                 {
-                    switch (trabajo.TipoOrden)
-                    {
-                        case 1:
-                            TrabajosServicio.Add(trabajo);
-                            break;
-
-                        case 2:
-                            TrabajosDiagnostico.Add(trabajo);
-                            break;
-
-                        case 3:
-                            TrabajosReparacion.Add(trabajo);
-                            break;
-
-                        case 4:
-                            TrabajosGarantia.Add(trabajo);
-                            break;
-
-                        case 5:
-                            TrabajosReacondicionamiento.Add(trabajo);
-                            break;
-                    }
+                    TodosLosTrabajos.Clear();
+                    return;
                 }
 
-                // 🔹 NOTIFICAR DASHBOARD
-                NotificarCambiosDashboards();
+                // ✅ AGRUPAR TRABAJOS POR TIPO
+                var grupos = new ObservableCollection<GrupoTrabajos>();
+
+                // Servicio
+                var servicios = response.Trabajos.Where(t => t.TipoOrden == 1).ToList();
+                if (servicios.Any())
+                {
+                    grupos.Add(new GrupoTrabajos("🔧 SERVICIO", "#FFF5F5", "#D60000", "#D60000", servicios));
+                }
+
+                // Diagnóstico
+                var diagnosticos = response.Trabajos.Where(t => t.TipoOrden == 2).ToList();
+                if (diagnosticos.Any())
+                {
+                    grupos.Add(new GrupoTrabajos("🧪 DIAGNÓSTICO", "#E3F2FD", "#2196F3", "#2196F3", diagnosticos));
+                }
+
+                // Reparación
+                var reparaciones = response.Trabajos.Where(t => t.TipoOrden == 3).ToList();
+                if (reparaciones.Any())
+                {
+                    grupos.Add(new GrupoTrabajos("🛠️ REPARACIÓN", "#FFF8E1", "#FFA000", "#FFA000", reparaciones));
+                }
+
+                // Garantía
+                var garantias = response.Trabajos.Where(t => t.TipoOrden == 4).ToList();
+                if (garantias.Any())
+                {
+                    grupos.Add(new GrupoTrabajos("🛡️ GARANTÍA", "#E8F5E9", "#4CAF50", "#4CAF50", garantias));
+                }
+
+                // Reacondicionamiento
+                var reacondicionamientos = response.Trabajos.Where(t => t.TipoOrden == 5).ToList();
+                if (reacondicionamientos.Any())
+                {
+                    grupos.Add(new GrupoTrabajos("♻️ REACONDICIONAMIENTO", "#F3E5F5", "#9C27B0", "#9C27B0", reacondicionamientos));
+                }
+
+                TodosLosTrabajos = grupos;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"❌ Error CargarTrabajos: {ex.Message}");
+                await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
             }
             finally
             {
                 IsLoading = false;
             }
         }
+
+        #endregion
+
+        #region Acciones de Trabajo
+
         private async Task ReanudarTrabajo(MiTrabajoDto trabajo)
         {
             if (trabajo == null)
                 return;
+
             bool confirmar = await Application.Current.MainPage.DisplayAlert(
-            "Reanudar trabajo",
-            $"¿Deseas reanudar el trabajo:\n{trabajo.VehiculoCompleto}\n{trabajo.Trabajo}?",
-            "Reanudar",
-            "Cancelar");
+                "Reanudar trabajo",
+                $"¿Deseas reanudar el trabajo:\n{trabajo.VehiculoCompleto}\n{trabajo.Trabajo}?",
+                "Reanudar",
+                "Cancelar");
+
             if (!confirmar)
                 return;
-
 
             try
             {
                 IsLoading = true;
 
                 int tecnicoId = Preferences.Get("user_id", 0);
-
-                var response = await _apiService.ReanudarTrabajoAsync(
-                    trabajo.Id,
-                    tecnicoId
-                );
+                var response = await _apiService.ReanudarTrabajoAsync(trabajo.Id, tecnicoId);
 
                 if (!response.Success)
                 {
-                    await Application.Current.MainPage.DisplayAlert(
-                        "Error",
-                        response.Message,
-                        "OK");
+                    await Application.Current.MainPage.DisplayAlert("Error", response.Message, "OK");
                     return;
                 }
 
-
-                // ✅ Si es SERVICIO → navegar a checklist
-                if (trabajo.TipoOrden == 1 && (trabajo.Trabajo == "1er Servicio" || trabajo.Trabajo == "2do Servicio" || trabajo.Trabajo == "3er Servicio" || trabajo.Trabajo == "Servicio Externo"))
-                {
-                    await NavegarACheckList(trabajo);
-                }
-                else
-                {
-                    switch (trabajo.TipoOrden)
-                    {
-                        case 1:
-                            await NavegarACheckListReparacion(trabajo);
-                            break;
-                        case 2:
-                            await NavegarACheckListDiagnostico(trabajo);
-                            break;
-                        case 3:
-                            await NavegarACheckListReparacion(trabajo);
-                            break;
-                        case 4:
-                            await NavegarACheckListGarantia(trabajo);
-                            break;
-                        case 5:
-                            await NavegarACheckListReacondicionamiento();
-                            break;
-                    }
-
-                    await Application.Current.MainPage.DisplayAlert(
-                        "Trabajo Reanudado",
-                        response.Message,
-                        "OK");
-                }
-
+                await NavegarSegunTipoTrabajo(trabajo);
                 await CargarTrabajos();
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Error",
-                    ex.Message,
-                    "OK");
+                await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
             }
             finally
             {
                 IsLoading = false;
             }
-
         }
 
         private async Task IniciarTrabajo(MiTrabajoDto trabajo)
@@ -381,68 +319,25 @@ namespace CarslineApp.ViewModels.ViewModelsHome
             if (!confirmar)
                 return;
 
-
             try
             {
                 IsLoading = true;
 
                 int tecnicoId = Preferences.Get("user_id", 0);
-
-                var response = await _apiService.IniciarTrabajoAsync(
-                    trabajo.Id,
-                    tecnicoId
-                );
+                var response = await _apiService.IniciarTrabajoAsync(trabajo.Id, tecnicoId);
 
                 if (!response.Success)
                 {
-                    await Application.Current.MainPage.DisplayAlert(
-                        "Error",
-                        response.Message,
-                        "OK");
+                    await Application.Current.MainPage.DisplayAlert("Error", response.Message, "OK");
                     return;
                 }
 
-
-                // ✅ Si es SERVICIO → navegar a checklist
-                if (trabajo.TipoOrden == 1 && (trabajo.Trabajo == "1er Servicio" || trabajo.Trabajo == "2do Servicio" || trabajo.Trabajo == "3er Servicio" || trabajo.Trabajo == "Servicio Externo"))
-                {
-                    await NavegarACheckList(trabajo);
-                }
-                else
-                {
-                    switch (trabajo.TipoOrden)
-                    {
-                        case 1:
-                            await NavegarACheckListReparacion(trabajo);
-                            break;
-                        case 2:
-                            await NavegarACheckListDiagnostico(trabajo);
-                            break;
-                        case 3:
-                            await NavegarACheckListReparacion(trabajo);
-                            break;
-                        case 4:
-                            await NavegarACheckListGarantia(trabajo);
-                            break;
-                        case 5:
-                            await NavegarACheckListReacondicionamiento();
-                            break;
-                    }
-
-                    await Application.Current.MainPage.DisplayAlert(
-                        "Trabajo iniciado",
-                        response.Message,
-                        "OK");
-                }
-
+                await NavegarSegunTipoTrabajo(trabajo);
                 await CargarTrabajos();
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Error",
-                    ex.Message,
-                    "OK");
+                await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
             }
             finally
             {
@@ -450,22 +345,41 @@ namespace CarslineApp.ViewModels.ViewModelsHome
             }
         }
 
-
-        private void NotificarCambiosDashboards()
+        private async Task NavegarSegunTipoTrabajo(MiTrabajoDto trabajo)
         {
-            OnPropertyChanged(nameof(TrabajosServicio));
-            OnPropertyChanged(nameof(TrabajosReparacion));
-            OnPropertyChanged(nameof(TrabajosDiagnostico));
-            OnPropertyChanged(nameof(TrabajosGarantia));
-            OnPropertyChanged(nameof(TrabajosReacondicionamiento));
-            OnPropertyChanged(nameof(HayTrabajosServicio));
-            OnPropertyChanged(nameof(HayTrabajosReparacion));
-            OnPropertyChanged(nameof(HayTrabajosDiagnostico));
-            OnPropertyChanged(nameof(HayTrabajosGarantia));
-            OnPropertyChanged(nameof(HayTrabajosReacondicionamiento));
-            OnPropertyChanged(nameof(NoHayTrabajos));
-            OnPropertyChanged(nameof(MensajeNoTrabajos));
+            // Si es SERVICIO específico
+            if (trabajo.TipoOrden == 1 &&
+                (trabajo.Trabajo == "1er Servicio" ||
+                 trabajo.Trabajo == "2do Servicio" ||
+                 trabajo.Trabajo == "3er Servicio" ||
+                 trabajo.Trabajo == "Servicio Externo"))
+            {
+                await NavegarACheckList(trabajo);
+                return;
+            }
+
+            // Otros tipos
+            switch (trabajo.TipoOrden)
+            {
+                case 1:
+                    await NavegarACheckListReparacion(trabajo);
+                    break;
+                case 2:
+                    await NavegarACheckListDiagnostico(trabajo);
+                    break;
+                case 3:
+                    await NavegarACheckListReparacion(trabajo);
+                    break;
+                case 4:
+                    await NavegarACheckListGarantia(trabajo);
+                    break;
+                case 5:
+                    await NavegarACheckListReacondicionamiento();
+                    break;
+            }
         }
+
+        #endregion
 
         private async Task OnLogout()
         {
@@ -486,13 +400,29 @@ namespace CarslineApp.ViewModels.ViewModelsHome
             }
         }
 
-        #endregion
-
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    // ✅ CLASE PARA AGRUPAR TRABAJOS
+    public class GrupoTrabajos : ObservableCollection<MiTrabajoDto>
+    {
+        public string Titulo { get; set; }
+        public string Color { get; set; }
+        public string BorderColor { get; set; }
+        public string TextColor { get; set; }
+
+        public GrupoTrabajos(string titulo, string color, string borderColor, string textColor, List<MiTrabajoDto> trabajos)
+            : base(trabajos)
+        {
+            Titulo = titulo;
+            Color = color;
+            BorderColor = borderColor;
+            TextColor = textColor;
         }
     }
 }
