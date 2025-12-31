@@ -167,12 +167,13 @@
                                         <DataTemplate>
                                             <Frame BackgroundColor="{Binding Color}"
                                                    BorderColor="{Binding BorderColor}"
-                                                   Padding="15,12"
-                                                   Margin="15,15,15,5"
+                                                   Padding="20,15"
+                                                   Margin="20,20,20,5"
                                                    HasShadow="True"
                                                    CornerRadius="12">
                                                 <Label Text="{Binding Titulo}"
                                                        FontSize="18"
+                                                       HorizontalOptions="Center"
                                                        FontAttributes="Bold"
                                                        TextColor="{Binding TextColor}"/>
                                             </Frame>
@@ -183,9 +184,9 @@
                                     <CollectionView.ItemTemplate>
                                         <DataTemplate>
                                             <Frame Padding="12"
-                                                   Margin="15,5"
+                                                   Margin="15,5"                                                
                                                    BorderColor="{Binding BorderColor}"
-                                                   BackgroundColor="White"
+                                                   BackgroundColor="{Binding BacColor}"
                                                    CornerRadius="10"
                                                    HasShadow="False">
                                                 <VerticalStackLayout Spacing="6">

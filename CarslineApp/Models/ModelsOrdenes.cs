@@ -1,6 +1,8 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 
 namespace CarslineApp.Models
 {
@@ -47,7 +49,7 @@ namespace CarslineApp.Models
         {
             get
             {
-                if (TotalTrabajos == 0 || TrabajosCompletados==0) return 0;
+                if (TotalTrabajos == 0 || TrabajosCompletados == 0) return 0;
                 return (double)TrabajosCompletados / (double)TotalTrabajos;
             }
         }
@@ -63,10 +65,9 @@ namespace CarslineApp.Models
             }
         }
     }
-
-    /// <summary>
-    /// DTO completo de orden con trabajos (vista detalle)
-    /// </summary>
+        /// <summary>
+        /// DTO completo de orden con trabajos (vista detalle)
+        /// </summary>
     public class OrdenConTrabajosDto
     {
         public int Id { get; set; }
@@ -103,6 +104,15 @@ namespace CarslineApp.Models
         public bool TieneTrabajosEnProceso => Trabajos.Any(t => t.EnProceso);
         public bool TieneTrabajosCompletados => Trabajos.Any(t => t.EstaCompletado);
         public bool TieneTrabajos => Trabajos.Any();
+        public string BackgroundOrden { get; set; }
+        public string BorderOrden { get; set; }
+        public string TextOrden { get; set; }
+        public string BadgeColor { get; set; }
+        public string ProgresoBackground { get; set; }
+        public string ProgresoColor { get; set; }
+        public string TrabajosHeaderColor { get; set; }
+        public bool MostrarProgreso { get; set; }
+        public bool MostrarBarraProgreso { get; set; }
     }
 
     /// <summary>
@@ -243,6 +253,9 @@ namespace CarslineApp.Models
             6 => Color.FromArgb("#1A1A1A"), // Cancelado - Negro suavizado
             _ => Colors.Gray // Default
         };
+        public bool MostrarEstado { get; set; }
+        public bool NoMostrarEstado { get; set; }
+        public bool TieneTecnico { get; set; }
     }
     public class TrabajoCrearDto
     {
@@ -342,7 +355,15 @@ namespace CarslineApp.Models
             5 => "#9C27B0",  // Reacondicionamiento
             _ => "#888888"
         };
-
+        public string BacColor => TipoOrden switch
+        {
+            1 => "#FFF5F5",  // Servicio
+            2 => "#E3F2FD",  // Diagnóstico
+            3 => "#FFF8E1",  // Reparación
+            4 => "#E8F5E9",  // Garantía
+            5 => "#F3E5F5",  // Reacondicionamiento
+            _ => "#888888"
+        };
         // Determinar si se muestra fecha completa o solo hora
         public bool MostrarFecha => TipoOrden != 1;
         public bool MostrarSoloHora => TipoOrden == 1;
@@ -350,9 +371,42 @@ namespace CarslineApp.Models
         // Fecha y hora combinada
         public string FechaHoraCompleta => $"{FechaFormateada} {HoraFormateada}";
     }
+
     public class TrabajoResponse
     {
         public bool Success { get; set; }
         public string Message { get; set; } = string.Empty;
+    }
+
+    public class TrabajoSimpleDto
+    {
+        public string Trabajo { get; set; } = string.Empty;
+        public DateTime FechaHoraPromesaEntrega { get; set; }
+        public string TecnicoNombre { get; set; } = string.Empty;
+        public string EstadoTrabajoNombre { get; set; } = string.Empty;
+        public DateTime? FechaHoraAsignacionTecnico { get; set; }
+    }
+    public class TrabajoTableroItem
+    {
+        public string Trabajo { get; set; } = string.Empty;
+        public string Estado { get; set; } = string.Empty;
+        public DateTime FechaEntrega { get; set; }
+
+        public string FechaEntregaFormateada =>
+            FechaEntrega.ToString("dd/MM HH:mm");
+
+        public string Icono =>
+            Trabajo.Contains("diagn", StringComparison.OrdinalIgnoreCase) ? "🧪" :
+            Trabajo.Contains("repar", StringComparison.OrdinalIgnoreCase) ? "🛠️" :
+            Trabajo.Contains("garant", StringComparison.OrdinalIgnoreCase) ? "🛡️" :
+            "🔧";
+    }
+
+    public class TecnicoTableroDetalle
+    {
+        public string TecnicoNombre { get; set; } = string.Empty;
+        public ObservableCollection<TrabajoTableroItem> Trabajos { get; set; } = new();
+
+        public int TotalTrabajos => Trabajos.Count;
     }
 }

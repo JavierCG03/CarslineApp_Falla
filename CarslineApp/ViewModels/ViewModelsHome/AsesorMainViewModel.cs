@@ -273,12 +273,12 @@ namespace CarslineApp.ViewModels.ViewModelsHome
                 {
                     var icono = trabajo.EstadoTrabajo switch
                     {
-                        1 =>"⏳", // Pendiente
-                        2 =>"🛠️", // Asignado
-                        3 =>"🔨", // En Proceso
-                        4=> "✅", // Completado
-                        5=> "⏸️", // Pausado
-                        6=> "❌", // Cancelado
+                        1 => "⏳", // Pendiente
+                        2 => "🛠️", // Asignado
+                        3 => "🔨", // En Proceso
+                        4 => "✅", // Completado
+                        5 => "⏸️", // Pausado
+                        6 => "❌", // Cancelado
                         _ => "📌"
                     };
 

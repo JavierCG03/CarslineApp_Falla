@@ -312,6 +312,42 @@ namespace CarslineApp.Services
             }
         }
 
+        public async Task<List<TrabajoSimpleDto>?> ObtenerTrabajosTecnicosAsync()
+        {
+            try
+            {
+                var url = $"{BaseUrl}/Ordenes/Trabajos";
+
+                Console.WriteLine($"🌐 Llamando a: {url}");
+
+                var response = await _httpClient.GetAsync(url);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"❌ Error HTTP: {response.StatusCode}");
+                    return null;
+                }
+
+                var json = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"📦 Response: {json}");
+
+                var trabajos = JsonSerializer.Deserialize<List<TrabajoSimpleDto>>(
+                    json,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                Console.WriteLine($"✅ Se obtuvieron {trabajos?.Count ?? 0} trabajos");
+                return trabajos;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error ObtenerTrabajosTecnicosAsync: {ex.Message}");
+                return null;
+            }
+        }
+
     }
 
 }

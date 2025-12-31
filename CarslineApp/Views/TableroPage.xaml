@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CarslineApp.Views.TableroPage"
+             Title="TableroPage">
+    
+    <CollectionView ItemsSource="{Binding Tecnicos}">
+        <CollectionView.ItemTemplate>
+            <DataTemplate>
+
+                <Frame
+                    Margin="10"
+                    Padding="15"
+                    CornerRadius="14"
+                    HasShadow="True">
+
+                    <VerticalStackLayout Spacing="10">
+
+                        <!-- Encabezado técnico -->
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label
+                                Text="{Binding TecnicoNombre}"
+                                FontSize="20"
+                                FontAttributes="Bold"/>
+
+                            <Frame
+                                Grid.Column="1"
+                                Padding="6,2"
+                                BackgroundColor="#D60000"
+                                CornerRadius="8">
+                                <Label
+                                    Text="{Binding TotalTrabajos}"
+                                    TextColor="White"
+                                    FontAttributes="Bold"/>
+                            </Frame>
+                        </Grid>
+
+                        <!-- Trabajos del técnico -->
+                        <CollectionView
+                            ItemsSource="{Binding Trabajos}"
+                            SelectionMode="None">
+
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="Auto,*,Auto" Padding="4">
+
+                                        <Label
+                                            Text="{Binding Icono}"
+                                            FontSize="18"/>
+
+                                        <VerticalStackLayout Grid.Column="1" Spacing="0">
+                                            <Label
+                                                Text="{Binding Trabajo}"
+                                                FontSize="14"
+                                                FontAttributes="Bold"/>
+
+                                            <Label
+                                                Text="{Binding Estado}"
+                                                FontSize="11"
+                                                TextColor="Gray"/>
+                                        </VerticalStackLayout>
+
+                                        <Label
+                                            Grid.Column="2"
+                                            Text="{Binding FechaEntregaFormateada}"
+                                            FontSize="12"
+                                            HorizontalOptions="End"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+
+                        </CollectionView>
+
+                    </VerticalStackLayout>
+                </Frame>
+
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+    </CollectionView>
+</ContentPage>

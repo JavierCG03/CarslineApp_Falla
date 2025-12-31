@@ -5,10 +5,6 @@ namespace CarslineApp.Services
 {
     public partial class  ApiService
     {
-        // ============================================
-        // MÉTODOS DE AUTENTICACIÓN (SIN CAMBIOS)
-        // ============================================
-
         public async Task<AuthResponse> LoginAsync(string nombreUsuario, string password)
         {
             try

@@ -215,7 +215,7 @@
                                                                HasShadow="False"
                                                                BorderColor="#D60000"
                                                                CornerRadius="12">
-                                                            
+
                                                             <Frame.GestureRecognizers>
                                                                 <TapGestureRecognizer 
                                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.VerDetalleOrdenCommand}" 
@@ -298,8 +298,8 @@
                                                                            VerticalOptions="Center"/>
                                                                 </Grid>
                                                                 <!-- HEADER TRABAJOS -->
-                                                                        <Grid ColumnDefinitions="Auto,*,Auto">
-                                                                            <Label Grid.Column="0"
+                                                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                                                    <Label Grid.Column="0"
                                                                                    Text="🔧"
                                                                                    FontSize="14"
                                                                                    VerticalOptions="Center"/>
@@ -575,7 +575,7 @@
                                                                            TextColor="#666"
                                                                            VerticalOptions="Center"/>
                                                                 </Grid>
-                                                                
+
                                                                 <Grid ColumnDefinitions="Auto,*,*" ColumnSpacing="8">
                                                                     <Label Grid.Column="0"
                                                                            Text="Promesa Entrega"

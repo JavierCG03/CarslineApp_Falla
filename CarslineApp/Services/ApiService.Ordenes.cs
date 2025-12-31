@@ -73,7 +73,7 @@ namespace CarslineApp.Services
                         VehiculoCompleto = o.VehiculoCompleto,
                         ClienteNombre = o.ClienteNombre,
                         ClienteTelefono = o.ClienteTelefono,
-                        TipoServicio= o.TipoServicio,
+                        TipoServicio = o.TipoServicio,
                         HoraPromesa = o.FechaHoraPromesaEntrega.ToString("h:mm tt"),
                         FechaPromesa = o.FechaHoraPromesaEntrega.ToString("ddd/dd/MMM"),
                         HoraInicio = "-", // Se puede calcular del primer trabajo
@@ -96,7 +96,6 @@ namespace CarslineApp.Services
                 return new List<OrdenDetalladaDto>();
             }
         }
-
         public async Task<List<OrdenDetalladaDto>> ObtenerOrdenesPorTipo_JefeAsync(int tipoOrdenId)
         {
             try
@@ -141,7 +140,6 @@ namespace CarslineApp.Services
                 return new List<OrdenDetalladaDto>();
             }
         }
-
         /// <summary>
         /// ✅ NUEVO: Obtener orden completa con todos sus trabajos
         /// </summary>

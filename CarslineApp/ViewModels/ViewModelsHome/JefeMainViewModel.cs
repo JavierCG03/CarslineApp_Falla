@@ -15,9 +15,8 @@ namespace CarslineApp.ViewModels.ViewModelsHome
         private bool _isLoading;
         private string _nombreUsuarioActual = string.Empty;
 
-        private ObservableCollection<OrdenConTrabajosDto> _ordenesPendientes = new();
-        private ObservableCollection<OrdenConTrabajosDto> _ordenesProceso = new();
-        private ObservableCollection<OrdenConTrabajosDto> _ordenesFinalizadas = new();
+        // ✅ LISTA ÚNICA AGRUPADA
+        private ObservableCollection<GrupoOrdenes> _todasLasOrdenesAgrupadas = new();
 
         public JefeMainViewModel()
         {
@@ -28,6 +27,7 @@ namespace CarslineApp.ViewModels.ViewModelsHome
             VerDiagnosticoCommand = new Command(() => CambiarTipoOrden(2));
             VerReparacionCommand = new Command(() => CambiarTipoOrden(3));
             VerGarantiaCommand = new Command(() => CambiarTipoOrden(4));
+            VerTableroCommand = new Command(async () => await VerTablero());
 
             // Comandos de acciones
             RefreshCommand = new Command(async () => await CargarOrdenes());
@@ -37,7 +37,6 @@ namespace CarslineApp.ViewModels.ViewModelsHome
             AsignarTecnicoCommand = new Command<TrabajoDto>(async (trabajo) => await AsignarTecnico(trabajo));
             ReasignarTecnicoCommand = new Command<TrabajoDto>(async (trabajo) => await ReasignarTecnico(trabajo));
 
-            // Solo cargar nombre de usuario aquí
             NombreUsuarioActual = Preferences.Get("user_name", "Jefe de Taller");
         }
 
@@ -82,34 +81,23 @@ namespace CarslineApp.ViewModels.ViewModelsHome
         public bool EsDiagnostico => TipoOrdenSeleccionado == 2;
         public bool EsReparacion => TipoOrdenSeleccionado == 3;
         public bool EsGarantia => TipoOrdenSeleccionado == 4;
-
+        public bool TableroActivo => VerTableroCommand != null;
         public bool IsLoading
         {
             get => _isLoading;
             set { _isLoading = value; OnPropertyChanged(); }
         }
 
-        public ObservableCollection<OrdenConTrabajosDto> OrdenesPendientes
+        // ✅ LISTA ÚNICA OBSERVABLE
+        public ObservableCollection<GrupoOrdenes> TodasLasOrdenesAgrupadas
         {
-            get => _ordenesPendientes;
-            set { _ordenesPendientes = value; OnPropertyChanged(); }
+            get => _todasLasOrdenesAgrupadas;
+            set
+            {
+                _todasLasOrdenesAgrupadas = value;
+                OnPropertyChanged();
+            }
         }
-
-        public ObservableCollection<OrdenConTrabajosDto> OrdenesProceso
-        {
-            get => _ordenesProceso;
-            set { _ordenesProceso = value; OnPropertyChanged(); }
-        }
-
-        public ObservableCollection<OrdenConTrabajosDto> OrdenesFinalizadas
-        {
-            get => _ordenesFinalizadas;
-            set { _ordenesFinalizadas = value; OnPropertyChanged(); }
-        }
-
-        public bool HayPendientes => OrdenesPendientes.Any();
-        public bool HayProceso => OrdenesProceso.Any();
-        public bool HayFinalizadas => OrdenesFinalizadas.Any();
 
         #endregion
 
@@ -119,6 +107,7 @@ namespace CarslineApp.ViewModels.ViewModelsHome
         public ICommand VerDiagnosticoCommand { get; }
         public ICommand VerReparacionCommand { get; }
         public ICommand VerGarantiaCommand { get; }
+        public ICommand VerTableroCommand { get; }
         public ICommand RefreshCommand { get; }
         public ICommand LogoutCommand { get; }
         public ICommand AsignarTecnicoCommand { get; }
@@ -127,6 +116,26 @@ namespace CarslineApp.ViewModels.ViewModelsHome
         #endregion
 
         #region Métodos
+        private async Task VerTablero()
+        {             
+            IsLoading = true;
+            try
+            {
+                await Application.Current.MainPage.Navigation.PushAsync(new TableroPage());
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert(
+                    "Error",
+                    $"No se pudo navegar al tablero: {ex.Message}",
+                    "OK");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
 
         private async void CambiarTipoOrden(int tipoOrden)
         {
@@ -140,34 +149,30 @@ namespace CarslineApp.ViewModels.ViewModelsHome
 
             try
             {
-                // Primero obtenemos las órdenes básicas
+                // Obtener órdenes básicas
                 var ordenesList = await _apiService.ObtenerOrdenesPorTipo_JefeAsync(TipoOrdenSeleccionado);
                 System.Diagnostics.Debug.WriteLine($"📦 Órdenes recibidas: {ordenesList?.Count ?? 0}");
 
                 if (ordenesList == null || !ordenesList.Any())
                 {
-                    await MainThread.InvokeOnMainThreadAsync(() =>
-                    {
-                        OrdenesPendientes.Clear();
-                        OrdenesProceso.Clear();
-                        OrdenesFinalizadas.Clear();
-                        NotificarCambiosDashboards();
-                    });
+                    TodasLasOrdenesAgrupadas = new ObservableCollection<GrupoOrdenes>();
                     return;
                 }
 
-                // Ahora obtenemos el detalle completo con trabajos para cada orden
+                // Separar por estado
                 var ordenesPendientes = new List<OrdenConTrabajosDto>();
                 var ordenesProceso = new List<OrdenConTrabajosDto>();
                 var ordenesFinalizadas = new List<OrdenConTrabajosDto>();
 
                 foreach (var ordenBasica in ordenesList)
                 {
-                    // Obtener detalle completo con trabajos
                     var ordenCompleta = await _apiService.ObtenerOrdenCompletaAsync(ordenBasica.Id);
 
                     if (ordenCompleta != null)
                     {
+                        // ✅ Enriquecer la orden con propiedades de UI
+                        EnriquecerOrden(ordenCompleta);
+
                         if (ordenCompleta.EstadoOrdenId == 1)
                             ordenesPendientes.Add(ordenCompleta);
                         else if (ordenCompleta.EstadoOrdenId == 2)
@@ -177,23 +182,43 @@ namespace CarslineApp.ViewModels.ViewModelsHome
                     }
                 }
 
-                await MainThread.InvokeOnMainThreadAsync(() =>
+                // ✅ CREAR GRUPOS
+                var grupos = new ObservableCollection<GrupoOrdenes>();
+
+                if (ordenesPendientes.Any())
                 {
-                    OrdenesPendientes.Clear();
-                    OrdenesProceso.Clear();
-                    OrdenesFinalizadas.Clear();
+                    grupos.Add(new GrupoOrdenes(
+                        "📋 ÓRDENES PENDIENTES",
+                        "#FFE5E5",
+                        "#D60000",
+                        "Black",
+                        ordenesPendientes
+                    ));
+                }
 
-                    foreach (var orden in ordenesPendientes)
-                        OrdenesPendientes.Add(orden);
+                if (ordenesProceso.Any())
+                {
+                    grupos.Add(new GrupoOrdenes(
+                        "⚙️ ÓRDENES EN PROCESO",
+                        "White",
+                        "#E0E0E0",
+                        "#404040",
+                        ordenesProceso
+                    ));
+                }
 
-                    foreach (var orden in ordenesProceso)
-                        OrdenesProceso.Add(orden);
+                if (ordenesFinalizadas.Any())
+                {
+                    grupos.Add(new GrupoOrdenes(
+                        "✅ ÓRDENES FINALIZADAS",
+                        "White",
+                        "#E0E0E0",
+                        "#404040",
+                        ordenesFinalizadas
+                    ));
+                }
 
-                    foreach (var orden in ordenesFinalizadas)
-                        OrdenesFinalizadas.Add(orden);
-
-                    NotificarCambiosDashboards();
-                });
+                TodasLasOrdenesAgrupadas = grupos;
             }
             catch (Exception ex)
             {
@@ -209,26 +234,81 @@ namespace CarslineApp.ViewModels.ViewModelsHome
             }
         }
 
-        private void NotificarCambiosDashboards()
+        /// <summary>
+        /// Enriquece la orden con propiedades calculadas para la UI
+        /// </summary>
+        private void EnriquecerOrden(OrdenConTrabajosDto orden)
         {
-            OnPropertyChanged(nameof(OrdenesPendientes));
-            OnPropertyChanged(nameof(OrdenesProceso));
-            OnPropertyChanged(nameof(OrdenesFinalizadas));
-            OnPropertyChanged(nameof(HayPendientes));
-            OnPropertyChanged(nameof(HayProceso));
-            OnPropertyChanged(nameof(HayFinalizadas));
+            // Propiedades según el estado
+            switch (orden.EstadoOrdenId)
+            {
+                case 1: // Pendiente
+                    orden.BackgroundOrden = "#2A2A2A";
+                    orden.BorderOrden = "White";
+                    orden.TextOrden = "White";
+                    orden.BadgeColor = "#D60000";
+                    orden.TrabajosHeaderColor = "#D60000";
+                    orden.MostrarProgreso = false;
+                    break;
+
+                case 2: // En Proceso
+                    orden.BackgroundOrden = "#FFF8E1";
+                    orden.BorderOrden = "#FFA500";
+                    orden.TextOrden = "#1A1A1A";
+                    orden.BadgeColor = "#FFA500";
+                    orden.ProgresoBackground = "#FFFBF5";
+                    orden.ProgresoColor = "#FFA500";
+                    orden.TrabajosHeaderColor = "#FFA500";
+                    orden.MostrarProgreso = true;
+                    orden.MostrarBarraProgreso = true;
+                    break;
+
+                case 3: // Finalizada
+                    orden.BackgroundOrden = "#F1F8F4";
+                    orden.BorderOrden = "#4CAF50";
+                    orden.TextOrden = "#1A1A1A";
+                    orden.BadgeColor = "#4CAF50";
+                    orden.ProgresoBackground = "#F9FFF9";
+                    orden.ProgresoColor = "#4CAF50";
+                    orden.TrabajosHeaderColor = "#4CAF50";
+                    orden.MostrarProgreso = true;
+                    orden.MostrarBarraProgreso = false;
+                    break;
+            }
+
+            // Enriquecer trabajos
+            if (orden.Trabajos != null)
+            {
+                foreach (var trabajo in orden.Trabajos)
+                {
+                    EnriquecerTrabajo(trabajo, orden.EstadoOrdenId);
+                }
+            }
         }
 
         /// <summary>
-        /// Asignar técnico a un trabajo sin técnico asignado
+        /// Enriquece el trabajo con propiedades de UI
         /// </summary>
+        private void EnriquecerTrabajo(TrabajoDto trabajo, int estadoOrden)
+        {
+            // Mostrar estado solo en Proceso y Finalizadas
+            trabajo.MostrarEstado = estadoOrden == 2 || estadoOrden == 3;
+            trabajo.NoMostrarEstado = estadoOrden == 1;
+
+            // Determinar si tiene técnico
+            trabajo.TieneTecnico = trabajo.TecnicoAsignadoId.HasValue;
+        }
+
+        #endregion
+
+        #region Asignación de Técnicos
+
         private async Task AsignarTecnico(TrabajoDto trabajo)
         {
             try
             {
                 IsLoading = true;
 
-                // Obtener lista de técnicos
                 var tecnicos = await _apiService.ObtenerTecnicosAsync();
 
                 if (tecnicos == null || !tecnicos.Any())
@@ -240,7 +320,6 @@ namespace CarslineApp.ViewModels.ViewModelsHome
                     return;
                 }
 
-                // Crear lista de nombres para selección
                 var nombresTecnicos = tecnicos.Select(t => t.NombreCompleto).ToArray();
 
                 string tecnicoSeleccionado = await Application.Current.MainPage.DisplayActionSheet(
@@ -252,11 +331,9 @@ namespace CarslineApp.ViewModels.ViewModelsHome
                 if (string.IsNullOrEmpty(tecnicoSeleccionado) || tecnicoSeleccionado == "Cancelar")
                     return;
 
-                // Obtener ID del técnico seleccionado
                 var tecnico = tecnicos.FirstOrDefault(t => t.NombreCompleto == tecnicoSeleccionado);
                 if (tecnico == null) return;
 
-                // Confirmar asignación
                 bool confirmar = await Application.Current.MainPage.DisplayAlert(
                     "Confirmar asignación",
                     $"¿Asignar a {tecnico.NombreCompleto}?\n\nTrabajo: {trabajo.Trabajo}",
@@ -265,7 +342,6 @@ namespace CarslineApp.ViewModels.ViewModelsHome
 
                 if (!confirmar) return;
 
-                // Realizar asignación
                 int jefeId = Preferences.Get("user_id", 0);
                 var response = await _apiService.AsignarTecnicoAsync(trabajo.Id, tecnico.Id, jefeId);
 
@@ -276,7 +352,6 @@ namespace CarslineApp.ViewModels.ViewModelsHome
                         $"Trabajo asignado a {tecnico.NombreCompleto}",
                         "OK");
 
-                    // Recargar órdenes
                     await CargarOrdenes();
                 }
                 else
@@ -300,14 +375,10 @@ namespace CarslineApp.ViewModels.ViewModelsHome
             }
         }
 
-        /// <summary>
-        /// Reasignar técnico a un trabajo que ya tiene técnico asignado
-        /// </summary>
         private async Task ReasignarTecnico(TrabajoDto trabajo)
         {
             try
             {
-                // Verificar que el trabajo no esté en proceso
                 if (trabajo.EnProceso)
                 {
                     await Application.Current.MainPage.DisplayAlert(
@@ -319,7 +390,6 @@ namespace CarslineApp.ViewModels.ViewModelsHome
 
                 IsLoading = true;
 
-                // Obtener lista de técnicos
                 var tecnicos = await _apiService.ObtenerTecnicosAsync();
 
                 if (tecnicos == null || !tecnicos.Any())
@@ -331,7 +401,6 @@ namespace CarslineApp.ViewModels.ViewModelsHome
                     return;
                 }
 
-                // Filtrar al técnico actual
                 var tecnicosDisponibles = tecnicos
                     .Where(t => t.Id != trabajo.TecnicoAsignadoId)
                     .ToList();
@@ -400,6 +469,8 @@ namespace CarslineApp.ViewModels.ViewModelsHome
             }
         }
 
+        #endregion
+
         private async Task OnLogout()
         {
             bool confirm = await Application.Current.MainPage.DisplayAlert(
@@ -419,13 +490,29 @@ namespace CarslineApp.ViewModels.ViewModelsHome
             }
         }
 
-        #endregion
-
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    // ✅ CLASE PARA AGRUPAR ÓRDENES
+    public class GrupoOrdenes : ObservableCollection<OrdenConTrabajosDto>
+    {
+        public string Titulo { get; set; }
+        public string BackgroundColor { get; set; }
+        public string BorderColor { get; set; }
+        public string TextColor { get; set; }
+
+        public GrupoOrdenes(string titulo, string backgroundColor, string borderColor, string textColor, List<OrdenConTrabajosDto> ordenes)
+            : base(ordenes)
+        {
+            Titulo = titulo;
+            BackgroundColor = backgroundColor;
+            BorderColor = borderColor;
+            TextColor = textColor;
         }
     }
 }
