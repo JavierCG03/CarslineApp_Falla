@@ -114,8 +114,8 @@
                                Margin="0,0,0,8" 
                                CornerRadius="12" 
                                HasShadow="False"
-                               BackgroundColor="{Binding TableroActivo, Converter={StaticResource BoolToColorConverter}}">
-                            <Button Text="Tablero"
+                               BackgroundColor="Gray">
+                            <Button Text="📋 Tablero"
                                     Command="{Binding VerTableroCommand}"
                                     BackgroundColor="Transparent"
                                     TextColor="White"
@@ -185,7 +185,7 @@
                         <!-- ✅ UNA SOLA COLLECTIONVIEW CON AGRUPACIÓN -->
                         <RefreshView Grid.Row="1" 
                                      IsRefreshing="{Binding IsLoading}" 
-                                     Command="{Binding RefreshCommand}"
+                                     Command="{Binding RefreshCommand}"                                 
                                      BackgroundColor="#F5F5F5">
 
                             <CollectionView ItemsSource="{Binding TodasLasOrdenesAgrupadas}"

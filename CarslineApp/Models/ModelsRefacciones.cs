@@ -23,51 +23,39 @@ namespace CarslineApp.Models
             (string.IsNullOrEmpty(Modelo) ? "" : $" {Modelo}") +
             (Anio.HasValue ? $" {Anio}" : "");
 
-        public Color ColorStock => Cantidad == 0 ? Colors.Red :
-                                   Cantidad < 5 ? Color.FromArgb("#E67E22") :
-                                   Color.FromArgb("#27AE60");
-
-        public Color ColorStockFondo => Cantidad == 0 ? Color.FromArgb("#FADBD8") :
-                                        Cantidad < 5 ? Color.FromArgb("#FCF3CF") :
-                                        Color.FromArgb("#D5F4E6");
-
-        public Color ColorTipo
+        // ✅ Propiedades para la UI
+        public string ColorTipo
         {
             get
             {
-                var tipo = TipoRefaccion?.ToLower() ?? string.Empty;
-
-                return tipo switch
+                return TipoRefaccion.ToLower() switch
                 {
-                    var t when t.Contains("balatas delanteras") => Color.FromArgb("#E74C3C"),
-                    var t when t.Contains("balatas traseras") => Color.FromArgb("#C0392B"),
-                    var t when t.Contains("filtro aceite") => Color.FromArgb("#F39C12"),
-                    var t when t.Contains("filtro aire cabina") => Color.FromArgb("#3498DB"),
-                    var t when t.Contains("filtro aire motor") => Color.FromArgb("#2980B9"),
-                    _ => Color.FromArgb("#95A5A6")
+                    var t when t.Contains("filtro") => "#3498DB",
+                    var t when t.Contains("balata") => "#E74C3C",
+                    var t when t.Contains("bujia") => "#F39C12",
+                    var t when t.Contains("amortiguador") => "#9B59B6",
+                    _ => "#95A5A6"
                 };
             }
         }
-
 
         public string IconoTipo
         {
             get
             {
-                var tipo = TipoRefaccion?.ToLower() ?? string.Empty;
-
-                return tipo switch
+                return TipoRefaccion.ToLower() switch
                 {
-                    var t when t.Contains("balatas") => "🔴",
-                    var t when t.Contains("filtro aceite") => "🛢️",
-                    var t when t.Contains("filtro aire") => "💨",
-                    _ => "🔧"
+                    var t when t.Contains("filtro") => "🔧",
+                    var t when t.Contains("balata") => "🛑",
+                    var t when t.Contains("bujia") => "⚡",
+                    var t when t.Contains("amortiguador") => "🔩",
+                    _ => "📦"
                 };
             }
         }
 
-
-        public string TextoStock => $"Stock: {Cantidad}";
+        public string ColorStock => Cantidad == 0 ? "#E74C3C" : Cantidad < 5 ? "#F39C12" : "#27AE60";
+        public string ColorStockFondo => Cantidad == 0 ? "#FFEBEE" : Cantidad < 5 ? "#FFF3E0" : "#E8F5E9";
     }
 
     public class CrearRefaccionRequest
@@ -87,9 +75,11 @@ namespace CarslineApp.Models
         public RefaccionDto? Refaccion { get; set; }
     }
     // ✅ NUEVO DTO para respuesta paginada
+
     public class RefaccionesPaginadasResponse
     {
         public bool Success { get; set; }
+        public string Message { get; set; } = string.Empty; // ✅ AGREGAR ESTA LÍNEA
         public List<RefaccionDto> Refacciones { get; set; } = new();
         public int PaginaActual { get; set; }
         public int TotalPaginas { get; set; }

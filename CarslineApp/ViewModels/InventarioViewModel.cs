@@ -13,11 +13,17 @@ namespace CarslineApp.ViewModels
         private bool _isLoading;
         private string _errorMessage = string.Empty;
         private ObservableCollection<RefaccionDto> _refacciones = new();
-        private ObservableCollection<RefaccionDto> _refaccionesFiltradas = new();
         private string _textoBusqueda = string.Empty;
         private string _filtroTipo = "Todos";
+        private System.Threading.CancellationTokenSource? _searchCts;
 
-        // Tipos de refacción comunes
+        // ✅ Paginación
+        private int _paginaActual = 1;
+        private int _totalPaginas = 1;
+        private bool _tieneMasPaginas = false;
+        private bool _cargandoMas = false;
+        private const int ITEMS_POR_PAGINA = 20;
+
         public List<string> TiposRefaccion { get; } = new()
         {
             "Filtro Aceite",
@@ -30,7 +36,6 @@ namespace CarslineApp.ViewModels
             "Otro"
         };
 
-        // Lista de filtros por tipo (incluye "Todos")
         public List<string> TiposFiltro { get; } = new()
         {
             "Todos",
@@ -48,8 +53,8 @@ namespace CarslineApp.ViewModels
         {
             _apiService = new ApiService();
 
-            // Comandos
-            RefreshCommand = new Command(async () => await CargarRefacciones());
+            // Comandos básicos
+            RefreshCommand = new Command(async () => await RefrescarDatos());
             AgregarRefaccionCommand = new Command(async () => await OnAgregarRefaccion());
             AumentarCommand = new Command<RefaccionDto>(async (r) => await AumentarCantidad(r));
             DisminuirCommand = new Command<RefaccionDto>(async (r) => await DisminuirCantidad(r));
@@ -58,8 +63,13 @@ namespace CarslineApp.ViewModels
             ExportarExcelCommand = new Command(async () => await ExportarExcel());
             AumentarUnoCommand = new Command<RefaccionDto>(async (r) => await AumentarUnoRapido(r));
             DisminuirUnoCommand = new Command<RefaccionDto>(async (r) => await DisminuirUnoRapido(r));
-            BuscarCommand = new Command(async () => await BuscarRefaccion());
             LimpiarBusquedaCommand = new Command(() => LimpiarBusqueda());
+
+            // ✅ Comando de búsqueda con debounce
+            BuscarCommand = new Command(async () => await BuscarConDebounce());
+
+            // ✅ Comando para cargar más (scroll infinito)
+            CargarMasCommand = new Command(async () => await CargarMasPagina(), () => !CargandoMas && TieneMasPaginas);
         }
 
         #region Propiedades
@@ -69,8 +79,11 @@ namespace CarslineApp.ViewModels
             get => _isLoading;
             set
             {
-                _isLoading = value;
-                OnPropertyChanged();
+                if (_isLoading != value)
+                {
+                    _isLoading = value;
+                    OnPropertyChanged();
+                }
             }
         }
 
@@ -79,8 +92,11 @@ namespace CarslineApp.ViewModels
             get => _errorMessage;
             set
             {
-                _errorMessage = value;
-                OnPropertyChanged();
+                if (_errorMessage != value)
+                {
+                    _errorMessage = value;
+                    OnPropertyChanged();
+                }
             }
         }
 
@@ -89,21 +105,13 @@ namespace CarslineApp.ViewModels
             get => _refacciones;
             set
             {
-                _refacciones = value;
-                OnPropertyChanged();
-                AplicarFiltros();
-            }
-        }
-
-        public ObservableCollection<RefaccionDto> RefaccionesFiltradas
-        {
-            get => _refaccionesFiltradas;
-            set
-            {
-                _refaccionesFiltradas = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(HayRefacciones));
-                OnPropertyChanged(nameof(CantidadMostrada));
+                if (_refacciones != value)
+                {
+                    _refacciones = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(HayRefacciones));
+                    OnPropertyChanged(nameof(CantidadMostrada));
+                }
             }
         }
 
@@ -112,9 +120,11 @@ namespace CarslineApp.ViewModels
             get => _textoBusqueda;
             set
             {
-                _textoBusqueda = value;
-                OnPropertyChanged();
-                AplicarFiltros();
+                if (_textoBusqueda != value)
+                {
+                    _textoBusqueda = value;
+                    OnPropertyChanged();
+                }
             }
         }
 
@@ -123,15 +133,75 @@ namespace CarslineApp.ViewModels
             get => _filtroTipo;
             set
             {
-                _filtroTipo = value;
-                OnPropertyChanged();
-                AplicarFiltros();
+                if (_filtroTipo != value)
+                {
+                    _filtroTipo = value;
+                    OnPropertyChanged();
+                    _ = RefrescarDatos(); // Recargar con el nuevo filtro
+                }
             }
         }
 
-        public bool HayRefacciones => RefaccionesFiltradas?.Any() ?? false;
+        public bool HayRefacciones => Refacciones?.Any() ?? false;
+        public string CantidadMostrada => Refacciones?.Count.ToString() ?? "0";
 
-        public string CantidadMostrada => RefaccionesFiltradas?.Count.ToString() ?? "0";
+        // ✅ Nuevas propiedades de paginación
+        public int PaginaActual
+        {
+            get => _paginaActual;
+            set
+            {
+                if (_paginaActual != value)
+                {
+                    _paginaActual = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public int TotalPaginas
+        {
+            get => _totalPaginas;
+            set
+            {
+                if (_totalPaginas != value)
+                {
+                    _totalPaginas = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(InfoPaginacion));
+                }
+            }
+        }
+
+        public bool TieneMasPaginas
+        {
+            get => _tieneMasPaginas;
+            set
+            {
+                if (_tieneMasPaginas != value)
+                {
+                    _tieneMasPaginas = value;
+                    OnPropertyChanged();
+                    ((Command)CargarMasCommand).ChangeCanExecute();
+                }
+            }
+        }
+
+        public bool CargandoMas
+        {
+            get => _cargandoMas;
+            set
+            {
+                if (_cargandoMas != value)
+                {
+                    _cargandoMas = value;
+                    OnPropertyChanged();
+                    ((Command)CargarMasCommand).ChangeCanExecute();
+                }
+            }
+        }
+
+        public string InfoPaginacion => $"Página {PaginaActual} de {TotalPaginas}";
 
         #endregion
 
@@ -148,135 +218,196 @@ namespace CarslineApp.ViewModels
         public ICommand DisminuirUnoCommand { get; }
         public ICommand BuscarCommand { get; }
         public ICommand LimpiarBusquedaCommand { get; }
+        public ICommand CargarMasCommand { get; }
 
         #endregion
 
-        #region Métodos
+        #region Métodos Principales
 
-        // ✅ NUEVO: Buscar refacción específica por número de parte
-        private async Task BuscarRefaccion()
+        public async Task InicializarAsync()
         {
-            if (string.IsNullOrWhiteSpace(TextoBusqueda))
-            {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Búsqueda",
-                    "Ingresa un número de parte para buscar",
-                    "OK");
-                return;
-            }
+            await CargarRefacciones();
+        }
+
+        // ✅ Método optimizado con paginación
+        private async Task CargarRefacciones(bool esRecarga = false)
+        {
+            if (IsLoading) return;
 
             IsLoading = true;
+            ErrorMessage = string.Empty;
 
             try
             {
-                var refaccion = await _apiService.BuscarPorNumeroParteAsync(TextoBusqueda.Trim());
+                System.Diagnostics.Debug.WriteLine("📥 Iniciando carga de refacciones...");
 
-                if (refaccion != null)
+                if (esRecarga)
                 {
-                    // Mostrar solo la refacción encontrada
-                    RefaccionesFiltradas = new ObservableCollection<RefaccionDto> { refaccion };
+                    PaginaActual = 1;
+                    Refacciones.Clear();
+                }
+
+                string? terminoBusqueda = null;
+
+                if (FiltroTipo != "Todos")
+                {
+                    terminoBusqueda = FiltroTipo;
+                }
+                else if (!string.IsNullOrWhiteSpace(TextoBusqueda))
+                {
+                    terminoBusqueda = TextoBusqueda.Trim();
+                }
+
+                System.Diagnostics.Debug.WriteLine($"🔍 Búsqueda: '{terminoBusqueda}', Página: {PaginaActual}");
+
+                var response = await _apiService.ObtenerRefaccionesPaginadasAsync(
+                    PaginaActual,
+                    ITEMS_POR_PAGINA,
+                    terminoBusqueda
+                );
+
+                System.Diagnostics.Debug.WriteLine($"📦 Respuesta recibida: Success={response?.Success}, Count={response?.Refacciones?.Count ?? 0}");
+
+                if (response?.Success == true && response.Refacciones != null)
+                {
+                    TotalPaginas = response.TotalPaginas;
+                    TieneMasPaginas = response.TienePaginaSiguiente;
+                    Refacciones = new ObservableCollection<RefaccionDto>(response.Refacciones);
+
+                    System.Diagnostics.Debug.WriteLine($"✅ {Refacciones.Count} refacciones cargadas");
                 }
                 else
                 {
-                    await Application.Current.MainPage.DisplayAlert(
-                        "No encontrado",
-                        $"No se encontró la refacción '{TextoBusqueda}'",
-                        "OK");
+                    ErrorMessage = response?.Message ?? "No se pudieron cargar las refacciones";
+                    Refacciones = new ObservableCollection<RefaccionDto>();
 
-                    // Recargar toda la lista
-                    await CargarRefacciones();
+                    System.Diagnostics.Debug.WriteLine($"❌ Error: {ErrorMessage}");
                 }
+            }
+            catch (HttpRequestException ex)
+            {
+                ErrorMessage = "Error de conexión";
+                System.Diagnostics.Debug.WriteLine($"❌ HttpRequestException: {ex.Message}");
+                await MostrarError("Sin conexión", "No se pudo conectar al servidor");
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Error",
-                    $"Error al buscar: {ex.Message}",
-                    "OK");
+                ErrorMessage = "Error inesperado";
+                System.Diagnostics.Debug.WriteLine($"❌ Exception: {ex}");
+                await MostrarError("Error", $"Ocurrió un error: {ex.Message}");
             }
             finally
             {
                 IsLoading = false;
             }
         }
+        // ✅ Cargar más páginas (scroll infinito)
+        private async Task CargarMasPagina()
+        {
+            if (CargandoMas || !TieneMasPaginas || IsLoading) return;
 
-        // ✅ NUEVO: Limpiar búsqueda y mostrar todo
+            CargandoMas = true;
+
+            try
+            {
+                PaginaActual++;
+
+                string? terminoBusqueda = FiltroTipo != "Todos" ? FiltroTipo :
+                    !string.IsNullOrWhiteSpace(TextoBusqueda) ? TextoBusqueda.Trim() : null;
+
+                var response = await _apiService.ObtenerRefaccionesPaginadasAsync(
+                    PaginaActual,
+                    ITEMS_POR_PAGINA,
+                    terminoBusqueda
+                );
+
+                if (response?.Success == true && response.Refacciones != null)
+                {
+                    TotalPaginas = response.TotalPaginas;
+                    TieneMasPaginas = response.TienePaginaSiguiente;
+
+                    // Agregar nuevos items a la lista existente
+                    foreach (var refaccion in response.Refacciones)
+                    {
+                        Refacciones.Add(refaccion);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                PaginaActual--; // Revertir el incremento
+                System.Diagnostics.Debug.WriteLine($"Error al cargar más: {ex.Message}");
+            }
+            finally
+            {
+                CargandoMas = false;
+            }
+        }
+
+        // ✅ Búsqueda con debounce (evita búsquedas mientras se escribe)
+        private async Task BuscarConDebounce()
+        {
+            // Cancelar búsqueda anterior si existe
+            _searchCts?.Cancel();
+            _searchCts = new System.Threading.CancellationTokenSource();
+
+            try
+            {
+                // Esperar 500ms antes de buscar
+                await Task.Delay(500, _searchCts.Token);
+                await RefrescarDatos();
+            }
+            catch (TaskCanceledException)
+            {
+                // Búsqueda cancelada, ignorar
+            }
+        }
+
+        // ✅ Refrescar datos (llamar siempre esto en lugar de CargarRefacciones directamente)
+        private async Task RefrescarDatos()
+        {
+            await CargarRefacciones(esRecarga: true);
+        }
+
         private void LimpiarBusqueda()
         {
             TextoBusqueda = string.Empty;
             FiltroTipo = "Todos";
-            AplicarFiltros();
+            _ = RefrescarDatos();
         }
 
-        // ✅ NUEVO: Aplicar filtros de búsqueda y tipo
-        private void AplicarFiltros()
-        {
-            if (Refacciones == null || !Refacciones.Any())
-            {
-                RefaccionesFiltradas = new ObservableCollection<RefaccionDto>();
-                return;
-            }
+        #endregion
 
-            var filtradas = Refacciones.AsEnumerable();
+        #region Operaciones CRUD
 
-            // Filtrar por tipo
-            if (FiltroTipo != "Todos")
-            {
-                filtradas = filtradas.Where(r => r.TipoRefaccion == FiltroTipo);
-            }
-
-            // Filtrar por texto de búsqueda
-            if (!string.IsNullOrWhiteSpace(TextoBusqueda))
-            {
-                var busqueda = TextoBusqueda.ToLower();
-                filtradas = filtradas.Where(r =>
-                    (r.NumeroParte?.ToLower().Contains(busqueda) ?? false) ||
-                    (r.TipoRefaccion?.ToLower().Contains(busqueda) ?? false) ||
-                    (r.MarcaVehiculo?.ToLower().Contains(busqueda) ?? false) ||
-                    (r.Modelo?.ToLower().Contains(busqueda) ?? false));
-            }
-
-            RefaccionesFiltradas = new ObservableCollection<RefaccionDto>(filtradas);
-        }
         private async Task AumentarUnoRapido(RefaccionDto refaccion)
         {
+            if (refaccion == null) return;
+
             try
             {
                 var response = await _apiService.AumentarCantidadAsync(refaccion.Id, 1);
 
                 if (response.Success)
                 {
-
-                    // Recargar datos del servidor
-                    await CargarRefacciones();
+                    // Actualizar localmente
+                    refaccion.Cantidad += 1;
+                    OnPropertyChanged(nameof(Refacciones));
                 }
                 else
                 {
-                    await Application.Current.MainPage.DisplayAlert(
-                        "Error",
-                        response.Message,
-                        "OK");
+                    await MostrarError("Error", response.Message);
                 }
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Error",
-                    $"Error: {ex.Message}",
-                    "OK");
+                await MostrarError("Error", $"No se pudo aumentar: {ex.Message}");
             }
         }
 
         private async Task DisminuirUnoRapido(RefaccionDto refaccion)
         {
-            if (refaccion.Cantidad == 0)
-            {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Advertencia",
-                    "No hay stock disponible",
-                    "OK");
-                return;
-            }
+            if (refaccion == null || refaccion.Cantidad == 0) return;
 
             try
             {
@@ -286,162 +417,37 @@ namespace CarslineApp.ViewModels
                 {
                     // Actualizar localmente
                     refaccion.Cantidad -= 1;
-                    OnPropertyChanged(nameof(RefaccionesFiltradas));
-
-                    // Recargar datos del servidor
-                    await CargarRefacciones();
+                    OnPropertyChanged(nameof(Refacciones));
                 }
                 else
                 {
-                    await Application.Current.MainPage.DisplayAlert(
-                        "Error",
-                        response.Message,
-                        "OK");
+                    await MostrarError("Error", response.Message);
                 }
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Error",
-                    $"Error: {ex.Message}",
-                    "OK");
+                await MostrarError("Error", $"No se pudo disminuir: {ex.Message}");
             }
-        }
-
-        private async Task ExportarExcel()
-        {
-            try
-            {
-                if (!HayRefacciones)
-                {
-                    await Application.Current.MainPage.DisplayAlert(
-                        "Sin datos",
-                        "No hay refacciones para exportar",
-                        "OK");
-                    return;
-                }
-
-                IsLoading = true;
-
-                // Generar contenido CSV (compatible con Excel)
-                var csv = new System.Text.StringBuilder();
-
-                // Encabezados
-                csv.AppendLine("Número de Parte,Tipo,Marca,Modelo,Año,Cantidad,Fecha Registro,Última Modificación");
-
-                // Datos - usar RefaccionesFiltradas para exportar solo lo visible
-                foreach (var refaccion in RefaccionesFiltradas)
-                {
-                    csv.AppendLine($"\"{refaccion.NumeroParte}\"," +
-                                  $"\"{refaccion.TipoRefaccion}\"," +
-                                  $"\"{refaccion.MarcaVehiculo ?? ""}\"," +
-                                  $"\"{refaccion.Modelo ?? ""}\"," +
-                                  $"{refaccion.Anio?.ToString() ?? ""}," +
-                                  $"{refaccion.Cantidad}," +
-                                  $"{refaccion.FechaRegistro:yyyy-MM-dd}," +
-                                  $"{refaccion.FechaUltimaModificacion:yyyy-MM-dd}");
-                }
-
-                // Guardar archivo
-                var fileName = $"Inventario_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-                var filePath = Path.Combine(FileSystem.CacheDirectory, fileName);
-
-                await File.WriteAllTextAsync(filePath, csv.ToString());
-
-                // Compartir archivo
-                await Share.Default.RequestAsync(new ShareFileRequest
-                {
-                    Title = "Exportar Inventario",
-                    File = new ShareFile(filePath)
-                });
-
-                await Application.Current.MainPage.DisplayAlert(
-                    "✅ Exportado",
-                    $"Inventario exportado: {fileName}",
-                    "OK");
-            }
-            catch (Exception ex)
-            {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Error",
-                    $"Error al exportar: {ex.Message}",
-                    "OK");
-            }
-            finally
-            {
-                IsLoading = false;
-            }
-        }
-
-        public async Task InicializarAsync()
-        {
-            await CargarRefacciones();
-        }
-
-        private async Task CargarRefacciones()
-        {
-            IsLoading = true;
-            ErrorMessage = string.Empty;
-
-            try
-            {
-                //var response = await _apiService.ObtenerRefaccionesAsync();
-                var refacciones = await _apiService.ObtenerTodasRefaccionesAsync();
-                Refacciones = new ObservableCollection<RefaccionDto>(refacciones);
-                /*
-                if (response == null || !response.Success)
-                {
-                    ErrorMessage = "No se pudieron cargar las refacciones";
-                    return;
-                }
-
-                Refacciones = new ObservableCollection<RefaccionDto>(
-                    response.Refacciones
-                );*/
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = ex.Message;
-                await Application.Current.MainPage.DisplayAlert(
-                    "Error",
-                    ErrorMessage,
-                    "OK");
-            }
-            finally
-            {
-                IsLoading = false;
-            }
-        }
-
-
-        private async Task OnAgregarRefaccion()
-        {
-            await Application.Current.MainPage.Navigation.PushAsync(
-                new Views.AgregarRefaccionPage());
         }
 
         private async Task AumentarCantidad(RefaccionDto refaccion)
         {
-            string result = await Application.Current.MainPage.DisplayPromptAsync(
+            if (refaccion == null) return;
+
+            string? result = await Application.Current.MainPage.DisplayPromptAsync(
                 "Aumentar Stock",
                 $"¿Cuántas unidades deseas agregar a {refaccion.NumeroParte}?",
                 placeholder: "Cantidad",
                 keyboard: Keyboard.Numeric,
                 maxLength: 4);
 
-            if (string.IsNullOrWhiteSpace(result))
-                return;
+            if (string.IsNullOrWhiteSpace(result)) return;
 
             if (!int.TryParse(result, out int cantidad) || cantidad <= 0)
             {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Error",
-                    "Ingresa una cantidad válida",
-                    "OK");
+                await MostrarError("Error", "Ingresa una cantidad válida");
                 return;
             }
-
-            IsLoading = true;
 
             try
             {
@@ -449,64 +455,42 @@ namespace CarslineApp.ViewModels
 
                 if (response.Success)
                 {
-                    await Application.Current.MainPage.DisplayAlert(
-                        "Éxito",
-                        response.Message,
-                        "OK");
-                    await CargarRefacciones();
+                    await MostrarExito("Éxito", response.Message);
+                    await RefrescarDatos();
                 }
                 else
                 {
-                    await Application.Current.MainPage.DisplayAlert(
-                        "Error",
-                        response.Message,
-                        "OK");
+                    await MostrarError("Error", response.Message);
                 }
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Error",
-                    $"Error: {ex.Message}",
-                    "OK");
-            }
-            finally
-            {
-                IsLoading = false;
+                await MostrarError("Error", $"Error: {ex.Message}");
             }
         }
 
         private async Task DisminuirCantidad(RefaccionDto refaccion)
         {
-            if (refaccion.Cantidad == 0)
+            if (refaccion == null || refaccion.Cantidad == 0)
             {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Advertencia",
-                    "No hay stock disponible",
-                    "OK");
+                await MostrarError("Advertencia", "No hay stock disponible");
                 return;
             }
 
-            string result = await Application.Current.MainPage.DisplayPromptAsync(
+            string? result = await Application.Current.MainPage.DisplayPromptAsync(
                 "Disminuir Stock",
-                $"¿Cuántas unidades deseas quitar de {refaccion.NumeroParte}?\nStock actual: {refaccion.Cantidad}",
+                $"¿Cuántas unidades deseas quitar?\nStock actual: {refaccion.Cantidad}",
                 placeholder: "Cantidad",
                 keyboard: Keyboard.Numeric,
                 maxLength: 4);
 
-            if (string.IsNullOrWhiteSpace(result))
-                return;
+            if (string.IsNullOrWhiteSpace(result)) return;
 
             if (!int.TryParse(result, out int cantidad) || cantidad <= 0)
             {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Error",
-                    "Ingresa una cantidad válida",
-                    "OK");
+                await MostrarError("Error", "Ingresa una cantidad válida");
                 return;
             }
-
-            IsLoading = true;
 
             try
             {
@@ -514,43 +498,31 @@ namespace CarslineApp.ViewModels
 
                 if (response.Success)
                 {
-                    await Application.Current.MainPage.DisplayAlert(
-                        "Éxito",
-                        response.Message,
-                        "OK");
-                    await CargarRefacciones();
+                    await MostrarExito("Éxito", response.Message);
+                    await RefrescarDatos();
                 }
                 else
                 {
-                    await Application.Current.MainPage.DisplayAlert(
-                        "Error",
-                        response.Message,
-                        "OK");
+                    await MostrarError("Error", response.Message);
                 }
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Error",
-                    $"Error: {ex.Message}",
-                    "OK");
-            }
-            finally
-            {
-                IsLoading = false;
+                await MostrarError("Error", $"Error: {ex.Message}");
             }
         }
 
         private async Task EliminarRefaccion(RefaccionDto refaccion)
         {
+            if (refaccion == null) return;
+
             bool confirm = await Application.Current.MainPage.DisplayAlert(
-                "Confirmar Eliminación",
-                $"¿Estás seguro de eliminar la refacción {refaccion.NumeroParte}?",
+                "Confirmar",
+                $"¿Eliminar {refaccion.NumeroParte}?",
                 "Sí",
                 "No");
 
-            if (!confirm)
-                return;
+            if (!confirm) return;
 
             IsLoading = true;
 
@@ -560,26 +532,17 @@ namespace CarslineApp.ViewModels
 
                 if (response.Success)
                 {
-                    await Application.Current.MainPage.DisplayAlert(
-                        "Éxito",
-                        "Refacción eliminada correctamente",
-                        "OK");
-                    await CargarRefacciones();
+                    await MostrarExito("Éxito", "Refacción eliminada");
+                    await RefrescarDatos();
                 }
                 else
                 {
-                    await Application.Current.MainPage.DisplayAlert(
-                        "Error",
-                        response.Message,
-                        "OK");
+                    await MostrarError("Error", response.Message);
                 }
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Error",
-                    $"Error: {ex.Message}",
-                    "OK");
+                await MostrarError("Error", $"Error: {ex.Message}");
             }
             finally
             {
@@ -587,12 +550,92 @@ namespace CarslineApp.ViewModels
             }
         }
 
+        #endregion
+
+        #region Otros Métodos
+
+        private async Task OnAgregarRefaccion()
+        {
+            await Application.Current.MainPage.Navigation.PushAsync(
+                new Views.AgregarRefaccionPage());
+        }
+
         private async Task OnVolver()
         {
             await Application.Current.MainPage.Navigation.PopAsync();
         }
 
+        private async Task ExportarExcel()
+        {
+            try
+            {
+                if (!HayRefacciones)
+                {
+                    await MostrarError("Sin datos", "No hay refacciones para exportar");
+                    return;
+                }
+
+                IsLoading = true;
+
+                // Generar CSV
+                var csv = new System.Text.StringBuilder();
+                csv.AppendLine("Número,Tipo,Marca,Modelo,Año,Cantidad,Registro,Modificación");
+
+                foreach (var r in Refacciones)
+                {
+                    csv.AppendLine($"\"{r.NumeroParte}\"," +
+                                  $"\"{r.TipoRefaccion}\"," +
+                                  $"\"{r.MarcaVehiculo ?? ""}\"," +
+                                  $"\"{r.Modelo ?? ""}\"," +
+                                  $"{r.Anio?.ToString() ?? ""}," +
+                                  $"{r.Cantidad}," +
+                                  $"{r.FechaRegistro:yyyy-MM-dd}," +
+                                  $"{r.FechaUltimaModificacion:yyyy-MM-dd}");
+                }
+
+                var fileName = $"Inventario_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+                var filePath = Path.Combine(FileSystem.CacheDirectory, fileName);
+
+                await File.WriteAllTextAsync(filePath, csv.ToString());
+
+                await Share.Default.RequestAsync(new ShareFileRequest
+                {
+                    Title = "Exportar Inventario",
+                    File = new ShareFile(filePath)
+                });
+
+                await MostrarExito("Exportado", $"Archivo: {fileName}");
+            }
+            catch (Exception ex)
+            {
+                await MostrarError("Error", $"Error al exportar: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        // Métodos auxiliares para mostrar alertas
+        private async Task MostrarError(string titulo, string mensaje)
+        {
+            if (Application.Current?.MainPage != null)
+            {
+                await Application.Current.MainPage.DisplayAlert(titulo, mensaje, "OK");
+            }
+        }
+
+        private async Task MostrarExito(string titulo, string mensaje)
+        {
+            if (Application.Current?.MainPage != null)
+            {
+                await Application.Current.MainPage.DisplayAlert(titulo, mensaje, "OK");
+            }
+        }
+
         #endregion
+
+        #region INotifyPropertyChanged
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -600,5 +643,7 @@ namespace CarslineApp.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        #endregion
     }
 }

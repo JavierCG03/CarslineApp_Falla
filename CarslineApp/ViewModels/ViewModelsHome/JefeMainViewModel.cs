@@ -189,9 +189,9 @@ namespace CarslineApp.ViewModels.ViewModelsHome
                 {
                     grupos.Add(new GrupoOrdenes(
                         "📋 ÓRDENES PENDIENTES",
-                        "#FFE5E5",
-                        "#D60000",
-                        "Black",
+                        "#FFE5E5",// (string titulo, string backgroundColor, string borderColor, string textColor
+                        "#D60000",//
+                        "Black",//
                         ordenesPendientes
                     ));
                 }
@@ -200,8 +200,8 @@ namespace CarslineApp.ViewModels.ViewModelsHome
                 {
                     grupos.Add(new GrupoOrdenes(
                         "⚙️ ÓRDENES EN PROCESO",
-                        "White",
-                        "#E0E0E0",
+                        "#FFF8E1",
+                        "#FFA500",
                         "#404040",
                         ordenesProceso
                     ));
@@ -211,8 +211,8 @@ namespace CarslineApp.ViewModels.ViewModelsHome
                 {
                     grupos.Add(new GrupoOrdenes(
                         "✅ ÓRDENES FINALIZADAS",
-                        "White",
-                        "#E0E0E0",
+                        "#F1F8F4",
+                        "#4CAF50",
                         "#404040",
                         ordenesFinalizadas
                     ));
@@ -387,8 +387,6 @@ namespace CarslineApp.ViewModels.ViewModelsHome
                         "OK");
                     return;
                 }
-
-                IsLoading = true;
 
                 var tecnicos = await _apiService.ObtenerTecnicosAsync();
 

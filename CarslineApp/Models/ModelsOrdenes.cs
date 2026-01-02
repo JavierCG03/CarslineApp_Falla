@@ -388,25 +388,59 @@ namespace CarslineApp.Models
     }
     public class TrabajoTableroItem
     {
-        public string Trabajo { get; set; } = string.Empty;
-        public string Estado { get; set; } = string.Empty;
-        public DateTime FechaEntrega { get; set; }
+        public string Trabajo { get; set; }
+        public string Estado { get; set; }
+        public DateTime? FechaEntrega { get; set; }
 
-        public string FechaEntregaFormateada =>
-            FechaEntrega.ToString("dd/MM HH:mm");
+        public string FechaEntregaFormateada => FechaEntrega?.ToString("dd/MMM.-hh:mm tt") ?? "Sin fecha";
 
-        public string Icono =>
-            Trabajo.Contains("diagn", StringComparison.OrdinalIgnoreCase) ? "🧪" :
-            Trabajo.Contains("repar", StringComparison.OrdinalIgnoreCase) ? "🛠️" :
-            Trabajo.Contains("garant", StringComparison.OrdinalIgnoreCase) ? "🛡️" :
-            "🔧";
+        public string Icono => Estado switch
+        {
+            "Pendiente" => "⏳",
+            "En Proceso" => "🔧",
+            "Pausado" => "⏸️",
+            "Completado" => "✅",
+            _ => "📋"
+        };
     }
 
-    public class TecnicoTableroDetalle
+    public class TecnicoTableroDetalle : INotifyPropertyChanged
     {
-        public string TecnicoNombre { get; set; } = string.Empty;
+        private string _tecnicoNombre;
+        private bool _isExpanded;
+
+        public string TecnicoNombre
+        {
+            get => _tecnicoNombre;
+            set
+            {
+                _tecnicoNombre = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsExpanded
+        {
+            get => _isExpanded;
+            set
+            {
+                if (_isExpanded != value)
+                {
+                    _isExpanded = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public ObservableCollection<TrabajoTableroItem> Trabajos { get; set; } = new();
 
-        public int TotalTrabajos => Trabajos.Count;
+        public int TotalTrabajos => Trabajos?.Count ?? 0;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

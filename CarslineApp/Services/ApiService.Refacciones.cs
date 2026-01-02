@@ -207,5 +207,45 @@ namespace CarslineApp.Services
                 };
             }
         }
+        // En ApiService.cs - Agregar estos métodos
+
+        public async Task<RefaccionesPaginadasResponse> ObtenerRefaccionesPaginadasAsync(
+            int pagina = 1,
+            int porPagina = 20,
+            string? busqueda = null)
+        {
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<RefaccionesPaginadasResponse>($"{BaseUrl}/Refacciones/paginado?pagina={pagina}&porPagina={porPagina}");
+                return response ?? new RefaccionesPaginadasResponse { Success = false };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error en ObtenerRefaccionesPaginadasAsync: {ex.Message}");
+                return new RefaccionesPaginadasResponse
+                {
+                    Success = false,
+                    Refacciones = new List<RefaccionDto>()
+                };
+            }
+        }
+
+        public async Task<List<RefaccionDto>> BusquedaRapidaAsync(string termino)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(termino))
+                    return new List<RefaccionDto>();
+
+                var url = $"api/Refacciones/buscar-rapido?termino={Uri.EscapeDataString(termino)}";
+                var response = await _httpClient.GetFromJsonAsync<List<RefaccionDto>>(url);
+                return response ?? new List<RefaccionDto>();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error en BusquedaRapidaAsync: {ex.Message}");
+                return new List<RefaccionDto>();
+            }
+        }
     }
 }
