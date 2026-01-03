@@ -157,9 +157,7 @@
 
         <!-- ✅ Lista con RefreshView y RemainingItemsThreshold para scroll infinito -->
         <RefreshView Grid.Row="3"
-                     IsRefreshing="{Binding IsLoading}"
-                     Command="{Binding RefreshCommand}"
-                     RefreshColor="#3498DB">
+                     Command="{Binding RefreshCommand}">
             <CollectionView ItemsSource="{Binding Refacciones}"
                            RemainingItemsThreshold="5"
                            RemainingItemsThresholdReachedCommand="{Binding CargarMasCommand}">
@@ -230,6 +228,24 @@
                                            MaxLines="2"/>
                                 </VerticalStackLayout>
 
+                                <HorizontalStackLayout Grid.Row="0" Grid.Column="1" 
+                                                   Spacing="5"
+                                                   VerticalOptions="Start"
+                                                   HorizontalOptions="End">
+                                <Label Text="Estante"
+                                                   FontSize="14"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#1A1A1A"
+                                                   HorizontalOptions="End"/>
+                                    <Label Text="{Binding Ubicacion}"
+                                                   FontSize="14"
+                                                   TextColor="#1A1A1A"
+                                               HorizontalOptions="End"/>
+                                </HorizontalStackLayout>
+
+
+
+
                                 <!-- Stock Badge -->
                                 <Border Grid.Row="0" Grid.Column="2"
                                         BackgroundColor="{Binding ColorStockFondo}"
@@ -284,6 +300,7 @@
                                                Padding="0"
                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:InventarioViewModel}}, Path=DisminuirUnoCommand}"
                                                CommandParameter="{Binding .}"/>
+
                                     </HorizontalStackLayout>
 
                                     <!-- Avanzados -->

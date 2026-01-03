@@ -12,6 +12,7 @@ namespace CarslineApp.Models
         public string NumeroParte { get; set; } = string.Empty;
         public string TipoRefaccion { get; set; } = string.Empty;
         public string? MarcaVehiculo { get; set; }
+        public string? Ubicacion { get; set; }
         public string? Modelo { get; set; }
         public int? Anio { get; set; }
         public int Cantidad { get; set; }
@@ -63,6 +64,7 @@ namespace CarslineApp.Models
         public string NumeroParte { get; set; } = string.Empty;
         public string TipoRefaccion { get; set; } = string.Empty;
         public string? MarcaVehiculo { get; set; }
+        public string? Ubicacion { get; set; }
         public string? Modelo { get; set; }
         public int? Anio { get; set; }
         public int Cantidad { get; set; }

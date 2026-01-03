@@ -15,6 +15,7 @@ namespace CarslineApp.ViewModels
         private string _tipoRefaccion = string.Empty;
         private string _marcaVehiculo = string.Empty;
         private string _modelo = string.Empty;
+        private string _ubicacion= string.Empty;
         private string _anio = string.Empty;
         private string _cantidad = string.Empty;
         private bool _mostrarOtroTipo;
@@ -114,7 +115,15 @@ namespace CarslineApp.ViewModels
                 OnPropertyChanged();
             }
         }
-
+        public string Ubicacion
+        {
+            get => _ubicacion;
+            set
+            {
+                _ubicacion = value;
+                OnPropertyChanged();
+            }
+        }
         public string Modelo
         {
             get => _modelo;
@@ -279,6 +288,7 @@ namespace CarslineApp.ViewModels
                     NumeroParte = NumeroParte.Trim(),
                     TipoRefaccion = tipoFinal,
                     MarcaVehiculo = string.IsNullOrWhiteSpace(MarcaVehiculo) ? null : MarcaVehiculo.Trim(),
+                    Ubicacion = string.IsNullOrWhiteSpace(Ubicacion) ? null : Ubicacion.Trim(),
                     Modelo = string.IsNullOrWhiteSpace(Modelo) ? null : Modelo.Trim(),
                     Anio = string.IsNullOrWhiteSpace(Anio) ? null : int.Parse(Anio),
                     Cantidad = int.Parse(Cantidad)

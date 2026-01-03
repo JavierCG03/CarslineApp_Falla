@@ -24,6 +24,9 @@ namespace CarslineApp.ViewModels
         private bool _cargandoMas = false;
         private const int ITEMS_POR_PAGINA = 20;
 
+        // ✅ NUEVO: HashSet para control de duplicados eficiente
+        private HashSet<int> _refaccionesIds = new();
+
         public List<string> TiposRefaccion { get; } = new()
         {
             "Filtro Aceite",
@@ -64,11 +67,7 @@ namespace CarslineApp.ViewModels
             AumentarUnoCommand = new Command<RefaccionDto>(async (r) => await AumentarUnoRapido(r));
             DisminuirUnoCommand = new Command<RefaccionDto>(async (r) => await DisminuirUnoRapido(r));
             LimpiarBusquedaCommand = new Command(() => LimpiarBusqueda());
-
-            // ✅ Comando de búsqueda con debounce
             BuscarCommand = new Command(async () => await BuscarConDebounce());
-
-            // ✅ Comando para cargar más (scroll infinito)
             CargarMasCommand = new Command(async () => await CargarMasPagina(), () => !CargandoMas && TieneMasPaginas);
         }
 
@@ -137,7 +136,7 @@ namespace CarslineApp.ViewModels
                 {
                     _filtroTipo = value;
                     OnPropertyChanged();
-                    _ = RefrescarDatos(); // Recargar con el nuevo filtro
+                    _ = RefrescarDatos();
                 }
             }
         }
@@ -145,7 +144,6 @@ namespace CarslineApp.ViewModels
         public bool HayRefacciones => Refacciones?.Any() ?? false;
         public string CantidadMostrada => Refacciones?.Count.ToString() ?? "0";
 
-        // ✅ Nuevas propiedades de paginación
         public int PaginaActual
         {
             get => _paginaActual;
@@ -229,7 +227,7 @@ namespace CarslineApp.ViewModels
             await CargarRefacciones();
         }
 
-        // ✅ Método optimizado con paginación
+        // ✅ OPTIMIZADO: Método con mejor control de duplicados
         private async Task CargarRefacciones(bool esRecarga = false)
         {
             if (IsLoading) return;
@@ -245,6 +243,7 @@ namespace CarslineApp.ViewModels
                 {
                     PaginaActual = 1;
                     Refacciones.Clear();
+                    _refaccionesIds.Clear(); // ✅ NUEVO: Limpiar control de duplicados
                 }
 
                 string? terminoBusqueda = null;
@@ -272,14 +271,27 @@ namespace CarslineApp.ViewModels
                 {
                     TotalPaginas = response.TotalPaginas;
                     TieneMasPaginas = response.TienePaginaSiguiente;
-                    Refacciones = new ObservableCollection<RefaccionDto>(response.Refacciones);
 
-                    System.Diagnostics.Debug.WriteLine($"✅ {Refacciones.Count} refacciones cargadas");
+                    // ✅ OPTIMIZADO: Eliminar duplicados antes de agregar
+                    var refaccionesSinDuplicados = response.Refacciones
+                        .Where(r => !_refaccionesIds.Contains(r.Id))
+                        .ToList();
+
+                    // Agregar IDs al control de duplicados
+                    foreach (var refaccion in refaccionesSinDuplicados)
+                    {
+                        _refaccionesIds.Add(refaccion.Id);
+                    }
+
+                    Refacciones = new ObservableCollection<RefaccionDto>(refaccionesSinDuplicados);
+
+                    System.Diagnostics.Debug.WriteLine($"✅ {Refacciones.Count} refacciones cargadas (sin duplicados)");
                 }
                 else
                 {
                     ErrorMessage = response?.Message ?? "No se pudieron cargar las refacciones";
                     Refacciones = new ObservableCollection<RefaccionDto>();
+                    _refaccionesIds.Clear();
 
                     System.Diagnostics.Debug.WriteLine($"❌ Error: {ErrorMessage}");
                 }
@@ -301,7 +313,8 @@ namespace CarslineApp.ViewModels
                 IsLoading = false;
             }
         }
-        // ✅ Cargar más páginas (scroll infinito)
+
+        // ✅ OPTIMIZADO: Prevenir duplicados al cargar más páginas
         private async Task CargarMasPagina()
         {
             if (CargandoMas || !TieneMasPaginas || IsLoading) return;
@@ -315,6 +328,8 @@ namespace CarslineApp.ViewModels
                 string? terminoBusqueda = FiltroTipo != "Todos" ? FiltroTipo :
                     !string.IsNullOrWhiteSpace(TextoBusqueda) ? TextoBusqueda.Trim() : null;
 
+                System.Diagnostics.Debug.WriteLine($"📥 Cargando página {PaginaActual}...");
+
                 var response = await _apiService.ObtenerRefaccionesPaginadasAsync(
                     PaginaActual,
                     ITEMS_POR_PAGINA,
@@ -326,17 +341,32 @@ namespace CarslineApp.ViewModels
                     TotalPaginas = response.TotalPaginas;
                     TieneMasPaginas = response.TienePaginaSiguiente;
 
-                    // Agregar nuevos items a la lista existente
-                    foreach (var refaccion in response.Refacciones)
+                    // ✅ CRÍTICO: Filtrar duplicados antes de agregar
+                    var refaccionesNuevas = response.Refacciones
+                        .Where(r => !_refaccionesIds.Contains(r.Id))
+                        .ToList();
+
+                    System.Diagnostics.Debug.WriteLine(
+                        $"📦 Recibidas: {response.Refacciones.Count}, " +
+                        $"Nuevas (sin duplicados): {refaccionesNuevas.Count}");
+
+                    // Agregar solo las nuevas a la lista Y al control de duplicados
+                    foreach (var refaccion in refaccionesNuevas)
                     {
-                        Refacciones.Add(refaccion);
+                        if (_refaccionesIds.Add(refaccion.Id)) // Add retorna false si ya existe
+                        {
+                            Refacciones.Add(refaccion);
+                        }
                     }
+
+                    System.Diagnostics.Debug.WriteLine($"✅ Total en lista: {Refacciones.Count}");
                 }
             }
             catch (Exception ex)
             {
                 PaginaActual--; // Revertir el incremento
-                System.Diagnostics.Debug.WriteLine($"Error al cargar más: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ Error al cargar más: {ex.Message}");
+                await MostrarError("Error", "No se pudieron cargar más refacciones");
             }
             finally
             {
@@ -344,7 +374,7 @@ namespace CarslineApp.ViewModels
             }
         }
 
-        // ✅ Búsqueda con debounce (evita búsquedas mientras se escribe)
+        // ✅ OPTIMIZADO: Búsqueda con debounce más eficiente
         private async Task BuscarConDebounce()
         {
             // Cancelar búsqueda anterior si existe
@@ -353,17 +383,17 @@ namespace CarslineApp.ViewModels
 
             try
             {
-                // Esperar 500ms antes de buscar
-                await Task.Delay(500, _searchCts.Token);
+                // ✅ OPTIMIZADO: Delay más corto para mejor UX
+                await Task.Delay(300, _searchCts.Token);
                 await RefrescarDatos();
             }
             catch (TaskCanceledException)
             {
                 // Búsqueda cancelada, ignorar
+                System.Diagnostics.Debug.WriteLine("🔍 Búsqueda cancelada (debounce)");
             }
         }
 
-        // ✅ Refrescar datos (llamar siempre esto en lugar de CargarRefacciones directamente)
         private async Task RefrescarDatos()
         {
             await CargarRefacciones(esRecarga: true);
@@ -380,6 +410,7 @@ namespace CarslineApp.ViewModels
 
         #region Operaciones CRUD
 
+        // ✅ OPTIMIZADO: Actualización local más eficiente
         private async Task AumentarUnoRapido(RefaccionDto refaccion)
         {
             if (refaccion == null) return;
@@ -390,9 +421,15 @@ namespace CarslineApp.ViewModels
 
                 if (response.Success)
                 {
-                    // Actualizar localmente
+                    // Actualizar localmente sin notificar toda la colección
                     refaccion.Cantidad += 1;
-                    OnPropertyChanged(nameof(Refacciones));
+
+                    // Buscar el índice y notificar solo ese item
+                    var index = Refacciones.IndexOf(refaccion);
+                    if (index >= 0)
+                    {
+                        OnPropertyChanged($"Refacciones[{index}]");
+                    }
                 }
                 else
                 {
@@ -415,9 +452,13 @@ namespace CarslineApp.ViewModels
 
                 if (response.Success)
                 {
-                    // Actualizar localmente
                     refaccion.Cantidad -= 1;
-                    OnPropertyChanged(nameof(Refacciones));
+
+                    var index = Refacciones.IndexOf(refaccion);
+                    if (index >= 0)
+                    {
+                        OnPropertyChanged($"Refacciones[{index}]");
+                    }
                 }
                 else
                 {
@@ -532,8 +573,11 @@ namespace CarslineApp.ViewModels
 
                 if (response.Success)
                 {
+                    // ✅ OPTIMIZADO: Remover localmente y del control de duplicados
+                    Refacciones.Remove(refaccion);
+                    _refaccionesIds.Remove(refaccion.Id);
+
                     await MostrarExito("Éxito", "Refacción eliminada");
-                    await RefrescarDatos();
                 }
                 else
                 {
@@ -577,20 +621,18 @@ namespace CarslineApp.ViewModels
 
                 IsLoading = true;
 
-                // Generar CSV
                 var csv = new System.Text.StringBuilder();
-                csv.AppendLine("Número,Tipo,Marca,Modelo,Año,Cantidad,Registro,Modificación");
+                csv.AppendLine("Número,Tipo,Marca,Modelo,Año,Cantidad");
+                var refaccionescompletas = await _apiService.ObtenerTodasRefaccionesAsync();
 
-                foreach (var r in Refacciones)
+                foreach (var r in refaccionescompletas)
                 {
                     csv.AppendLine($"\"{r.NumeroParte}\"," +
                                   $"\"{r.TipoRefaccion}\"," +
                                   $"\"{r.MarcaVehiculo ?? ""}\"," +
                                   $"\"{r.Modelo ?? ""}\"," +
                                   $"{r.Anio?.ToString() ?? ""}," +
-                                  $"{r.Cantidad}," +
-                                  $"{r.FechaRegistro:yyyy-MM-dd}," +
-                                  $"{r.FechaUltimaModificacion:yyyy-MM-dd}");
+                                  $"{r.Cantidad},");
                 }
 
                 var fileName = $"Inventario_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
@@ -616,7 +658,6 @@ namespace CarslineApp.ViewModels
             }
         }
 
-        // Métodos auxiliares para mostrar alertas
         private async Task MostrarError(string titulo, string mensaje)
         {
             if (Application.Current?.MainPage != null)

@@ -145,6 +145,13 @@
                     <Entry Text="{Binding Modelo}"
                            Placeholder="Ej: Corolla, Focus, Sentra"
                            Style="{StaticResource EntryStyle}"/>
+                    
+                    <!-- Estante -->
+                    <Label Text="Estante de Ubicacion (Opcional)"
+                           Style="{StaticResource LabelStyle}"/>
+                    <Entry Text="{Binding Ubicacion}"
+                           Placeholder="Ej: 1421"
+                           Style="{StaticResource EntryStyle}"/>
 
                     <!-- Año -->
                     <Label Text="Año (Opcional)"

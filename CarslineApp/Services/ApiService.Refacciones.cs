@@ -209,24 +209,37 @@ namespace CarslineApp.Services
         }
         // En ApiService.cs - Agregar estos métodos
 
-        public async Task<RefaccionesPaginadasResponse> ObtenerRefaccionesPaginadasAsync(
+        // ✅ AGREGAR LOGS en el backend para depurar
+        public async Task<RefaccionesPaginadasResponse?> ObtenerRefaccionesPaginadasAsync(
             int pagina = 1,
             int porPagina = 20,
             string? busqueda = null)
         {
             try
             {
-                var response = await _httpClient.GetFromJsonAsync<RefaccionesPaginadasResponse>($"{BaseUrl}/Refacciones/paginado?pagina={pagina}&porPagina={porPagina}");
-                return response ?? new RefaccionesPaginadasResponse { Success = false };
+                var url = $"{BaseUrl}/Refacciones/paginado" +
+                          $"?pagina={pagina}&porPagina={porPagina}";
+
+                if (!string.IsNullOrWhiteSpace(busqueda))
+                    url += $"&busqueda={Uri.EscapeDataString(busqueda)}";
+
+                Debug.WriteLine($"🌐 Llamando: {url}");
+
+                var response = await _httpClient.GetAsync(url);
+                var json = await response.Content.ReadAsStringAsync();
+
+                Debug.WriteLine($"📦 Respuesta: {json.Substring(0, Math.Min(200, json.Length))}...");
+
+                if (!response.IsSuccessStatusCode)
+                    return null;
+
+                return await response.Content
+                    .ReadFromJsonAsync<RefaccionesPaginadasResponse>();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error en ObtenerRefaccionesPaginadasAsync: {ex.Message}");
-                return new RefaccionesPaginadasResponse
-                {
-                    Success = false,
-                    Refacciones = new List<RefaccionDto>()
-                };
+                Debug.WriteLine($"❌ Error API: {ex.Message}");
+                return null;
             }
         }
 
