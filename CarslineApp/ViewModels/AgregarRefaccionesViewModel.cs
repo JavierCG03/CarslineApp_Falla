@@ -34,6 +34,8 @@ namespace CarslineApp.ViewModels
             "Filtro Aire Motor",
             "Balatas delanteras",
             "Balatas traseras",
+            "Bujias",
+            "Neumaticos",
             "Otro"
         };
 
