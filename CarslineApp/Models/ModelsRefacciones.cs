@@ -47,7 +47,6 @@ namespace CarslineApp.Models
                 return TipoRefaccion.ToLower() switch
                 {
                     var t when t.Contains("filtro") => "🔧",
-                    var t when t.Contains("balata") => "🛑",
                     var t when t.Contains("bujia") => "⚡",
                     var t when t.Contains("amortiguador") => "🔩",
                     _ => "📦"

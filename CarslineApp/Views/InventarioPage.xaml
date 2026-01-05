@@ -6,7 +6,8 @@
              x:Class="CarslineApp.Views.InventarioPage"
              x:DataType="viewmodels:InventarioViewModel"
              Title="Inventario"
-             Shell.NavBarIsVisible="True">
+             NavigationPage.HasNavigationBar="False"
+             Shell.NavBarIsVisible="False">
 
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -35,7 +36,7 @@
 
         <!-- Header -->
         <Frame Grid.Row="0"
-               BackgroundColor="#3498DB"
+               BackgroundColor="red"
                CornerRadius="0"
                Padding="20,30,20,20"
                HasShadow="True"
@@ -50,33 +51,26 @@
                            FontSize="14"
                            TextColor="White"
                            Opacity="0.9"/>
-                    <!-- ✅ Info de paginación -->
-                    <Label Text="{Binding InfoPaginacion}"
-                           FontSize="12"
-                           TextColor="White"
-                           Opacity="0.8"/>
                 </VerticalStackLayout>
 
                 <Button Grid.Column="1"
                         Text="📊"
                         FontSize="24"
-                        BackgroundColor="#27AE60"
+                        BackgroundColor="Transparent"
                         TextColor="White"
-                        WidthRequest="50"
+                        WidthRequest="62"
                         HeightRequest="50"
-                        CornerRadius="25"
                         Command="{Binding ExportarExcelCommand}"
                         VerticalOptions="Center"
                         Margin="0,0,10,0"/>
 
                 <Button Grid.Column="2"
                         Text="🔄"
-                        FontSize="24"
-                        BackgroundColor="#9B59B6"
+                        FontSize="26"
+                        BackgroundColor="Transparent"
                         TextColor="White"
-                        WidthRequest="50"
-                        HeightRequest="50"
-                        CornerRadius="25"
+                        WidthRequest="65"
+                        HeightRequest="65"
                         Command="{Binding RefreshCommand}"
                         VerticalOptions="Center"/>
             </Grid>
@@ -119,11 +113,11 @@
 
                     <Button Grid.Column="1"
                             Text="✖️"
-                            FontSize="18"
+                            FontSize="17"
                             BackgroundColor="#95A5A6"
                             TextColor="White"
-                            WidthRequest="45"
-                            HeightRequest="45"
+                            WidthRequest="60"
+                            HeightRequest="40"
                             CornerRadius="10"
                             Command="{Binding LimpiarBusquedaCommand}"/>
                 </Grid>
@@ -145,7 +139,7 @@
                             StrokeShape="RoundRectangle 10">
                         <Picker ItemsSource="{Binding TiposFiltro}"
                                 SelectedItem="{Binding FiltroTipo}"
-                                FontSize="14"
+                                FontSize="12"
                                 TextColor="#2C3E50"
                                 BackgroundColor="Transparent"
                                 HeightRequest="40"/>
@@ -232,7 +226,7 @@
                                                    Spacing="5"
                                                    VerticalOptions="Start"
                                                    HorizontalOptions="End">
-                                <Label Text="Estante"
+                                    <Label Text="Estante"
                                                    FontSize="14"
                                                    FontAttributes="Bold"
                                                    TextColor="#1A1A1A"
@@ -242,9 +236,6 @@
                                                    TextColor="#1A1A1A"
                                                HorizontalOptions="End"/>
                                 </HorizontalStackLayout>
-
-
-
 
                                 <!-- Stock Badge -->
                                 <Border Grid.Row="0" Grid.Column="2"
@@ -331,20 +322,6 @@
                         </Frame>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
-
-                <!-- ✅ Footer para cargar más -->
-                <CollectionView.Footer>
-                    <StackLayout Padding="20" IsVisible="{Binding CargandoMas}">
-                        <ActivityIndicator IsRunning="True"
-                                          Color="#3498DB"
-                                          HeightRequest="40"/>
-                        <Label Text="Cargando más..."
-                               HorizontalOptions="Center"
-                               TextColor="#7F8C8D"
-                               FontSize="14"/>
-                    </StackLayout>
-                </CollectionView.Footer>
-
             </CollectionView>
         </RefreshView>
 
@@ -358,7 +335,7 @@
 
             <Button Grid.Column="0"
                    Text="+ Agregar"
-                   BackgroundColor="#3498DB"
+                   BackgroundColor="red"
                    TextColor="White"
                    FontAttributes="Bold"
                    FontSize="16"
