@@ -53,17 +53,13 @@
                            Opacity="0.9"/>
                 </VerticalStackLayout>
 
-                <Button Grid.Column="1"
-                        Text="📊"
-                        FontSize="24"
-                        BackgroundColor="Transparent"
-                        TextColor="White"
-                        WidthRequest="62"
-                        HeightRequest="50"
-                        Command="{Binding ExportarExcelCommand}"
-                        VerticalOptions="Center"
-                        Margin="0,0,10,0"/>
-
+                <ImageButton Grid.Column="1"
+                             Command="{Binding ExportarExcelCommand}"
+                             Source="excel.png"
+                             BackgroundColor="Transparent"
+                             WidthRequest="30"
+                             HeightRequest="30"
+                             VerticalOptions="Center"/>
                 <Button Grid.Column="2"
                         Text="🔄"
                         FontSize="26"
@@ -152,10 +148,7 @@
         <!-- ✅ Lista con RefreshView y RemainingItemsThreshold para scroll infinito -->
         <RefreshView Grid.Row="3"
                      Command="{Binding RefreshCommand}">
-            <CollectionView ItemsSource="{Binding Refacciones}"
-                           RemainingItemsThreshold="5"
-                           RemainingItemsThresholdReachedCommand="{Binding CargarMasCommand}">
-
+            <CollectionView ItemsSource="{Binding Refacciones}">
                 <CollectionView.EmptyView>
                     <Frame BackgroundColor="White"
                            BorderColor="#E0E0E0"
@@ -181,13 +174,14 @@
                     </Frame>
                 </CollectionView.EmptyView>
 
-                <CollectionView.ItemTemplate>
+                <CollectionView.ItemTemplate >
                     <DataTemplate x:DataType="models:RefaccionDto">
-                        <Frame Style="{StaticResource CardFrame}">
+                        <Frame Style="{StaticResource CardFrame}" BorderColor="Red">
+                            
                             <Grid RowDefinitions="Auto,Auto,Auto" 
                                   ColumnDefinitions="Auto,*,Auto"
-                                  RowSpacing="10"
-                                  ColumnSpacing="15">
+                                  RowSpacing="5"
+                                  ColumnSpacing="10">
 
                                 <!-- Badge de color -->
                                 <Border Grid.Row="0" Grid.Column="0"
@@ -196,14 +190,14 @@
                                         StrokeThickness="2"
                                         Padding="12"
                                         WidthRequest="55"
-                                        HeightRequest="55"
+                                        HeightRequest="60"
                                         HorizontalOptions="Center"
                                         VerticalOptions="Center">
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="12"/>
                                     </Border.StrokeShape>
                                     <Label Text="{Binding IconoTipo}"
-                                           FontSize="26"
+                                           FontSize="20"
                                            HorizontalOptions="Center"
                                            VerticalOptions="Center"/>
                                 </Border>

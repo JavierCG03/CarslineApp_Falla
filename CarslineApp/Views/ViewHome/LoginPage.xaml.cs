@@ -7,35 +7,53 @@ namespace CarslineApp.Views
         public LoginPage()
         {
             InitializeComponent();
+
+            bool isPasswordVisible = false;
+
+            TogglePasswordButton.Clicked += async (s, e) =>
+            {
+                isPasswordVisible = !isPasswordVisible;
+
+                PasswordEntry.IsPassword = !isPasswordVisible;
+                TogglePasswordButton.Source = isPasswordVisible ? "eye_off.png" : "eye.png";
+
+                // Animación moderna
+                await TogglePasswordButton.ScaleTo(0.85, 60);
+                await TogglePasswordButton.ScaleTo(1, 60);
+            };
+
+            LoginButton.Pressed += async (_, _) =>
+            {
+                await LoginButton.ScaleTo(0.97, 80);
+            };
+
+            LoginButton.Released += async (_, _) =>
+            {
+                await LoginButton.ScaleTo(1, 80);
+            };
+
+
         }
         protected override async void OnAppearing()
         {
             base.OnAppearing();
 
-            // Si hay sesión activa, saltar login
-            var token = Preferences.Get("auth_token", string.Empty);
-            if (!string.IsNullOrEmpty(token))
-            {
-                var rolName = Preferences.Get("user_role_name", string.Empty);
-                NavigateByRole(rolName);
-                return;
-            }
+            LogoImage.TranslationY = -30;
+            LoginCard.TranslationY = 60;
 
-            // Animaciones de entrada
-            await LogoImage.FadeTo(1, 500);
-            LoginCard.TranslationY = 50;
-            await LoginCard.FadeTo(1, 500);
-            await LoginCard.TranslateTo(0, 0, 300, Easing.CubicOut);
+            await Task.WhenAll(
+                LogoImage.FadeTo(1, 600, Easing.CubicOut),
+                LogoImage.TranslateTo(0, 0, 600, Easing.CubicOut)
+            );
 
+            await Task.WhenAll(
+                LoginCard.FadeTo(1, 600, Easing.CubicOut),
+                LoginCard.TranslateTo(0, 0, 600, Easing.CubicOut)
+            );
 
-
-            // Animación botón presionado
-            LoginButton.Pressed += async (s, e) =>
-            {
-                await LoginButton.ScaleTo(0.95, 80);
-                await LoginButton.ScaleTo(1, 80);
-            };
+            await FooterText.FadeTo(1, 600);
         }
+
 
         private void NavigateByRole(string rolNombre)
         {

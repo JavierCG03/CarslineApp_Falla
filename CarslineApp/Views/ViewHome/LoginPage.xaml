@@ -39,11 +39,12 @@
                            FontAttributes="Italic"
                            HorizontalOptions="Center"
                            TextColor="#D60000"/>
-
+                    
                     <!-- Usuario -->
                     <VerticalStackLayout Spacing="5">
                         <Label Text="Usuario"
-                               FontSize="14"
+                              FontAttributes="Bold"
+                               FontSize="15"
                                TextColor="#333333"/>
 
                         <Frame BackgroundColor="#F5F5F5"
@@ -57,20 +58,42 @@
                     </VerticalStackLayout>
 
                     <!-- Contraseña -->
-                    <VerticalStackLayout Spacing="5">
+                    <VerticalStackLayout Spacing="6">
+
                         <Label Text="Contraseña"
                                FontSize="14"
+                               FontAttributes="Bold"
                                TextColor="#333333"/>
 
                         <Frame BackgroundColor="#F5F5F5"
-                               CornerRadius="10"
-                               Padding="10">
-                            <Entry Text="{Binding Password}"
-                                   Placeholder="Ingresa tu contraseña"
-                                   IsPassword="True"
-                                   TextColor="Black"
-                                   PlaceholderColor="#757575"/>
+                               CornerRadius="14"
+                               Padding="0"
+                               HasShadow="False">
+
+                            <Grid ColumnDefinitions="*,Auto"
+                                  HeightRequest="52"
+                                  Padding="14,0">
+
+                                <Entry x:Name="PasswordEntry"
+                                       Text="{Binding Password}"
+                                       Placeholder="Ingresa tu contraseña"
+                                       IsPassword="True"
+                                       TextColor="Black"
+                                       BackgroundColor="Transparent"
+                                       VerticalOptions="Center"
+                                       PlaceholderColor="#757575"/>
+
+                                <ImageButton x:Name="TogglePasswordButton"
+                                             Grid.Column="1"
+                                             Source="eye.png"
+                                             BackgroundColor="Transparent"
+                                             WidthRequest="24"
+                                             HeightRequest="24"
+                                             VerticalOptions="Center"/>
+                            </Grid>
+
                         </Frame>
+
                     </VerticalStackLayout>
 
                     <!-- ERROR -->
@@ -79,15 +102,25 @@
                            FontSize="12"
                            HorizontalOptions="Center"
                            IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}"/>
-                    <!-- BOTÓN LOGIN -->
                     <Button x:Name="LoginButton"
                             Text="INGRESAR"
                             Command="{Binding LoginCommand}"
                             BackgroundColor="#D60000"
                             TextColor="White"
-                            CornerRadius="12"
+                            CornerRadius="16"
                             FontAttributes="Bold"
-                            HeightRequest="55"/>
+                            HeightRequest="56">
+
+                        <Button.Shadow>
+                            <Shadow Brush="#40000000"
+                                    Offset="0,8"
+                                    Radius="16"
+                                    Opacity="0.8"/>
+                        </Button.Shadow>
+
+                    </Button>
+
+
                     <!-- Loading -->
                     <ActivityIndicator IsRunning="{Binding IsLoading}"
                                        IsVisible="{Binding IsLoading}"
@@ -96,6 +129,15 @@
 
                 </VerticalStackLayout>
             </Frame>
+            
+            <!-- Footer -->
+            <Label 
+                    x:Name="FooterText"
+                    Text="CARSLINE © 2026"
+                    FontSize="13"
+                    HorizontalOptions="Center"
+                    TextColor="#999999"
+                    Margin="0,25,0,25"/>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

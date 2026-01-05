@@ -430,6 +430,7 @@ namespace CarslineApp.ViewModels
                     {
                         OnPropertyChanged($"Refacciones[{index}]");
                     }
+                    await RefrescarDatos();
                 }
                 else
                 {
@@ -459,6 +460,7 @@ namespace CarslineApp.ViewModels
                     {
                         OnPropertyChanged($"Refacciones[{index}]");
                     }
+                    await RefrescarDatos();
                 }
                 else
                 {
@@ -622,7 +624,7 @@ namespace CarslineApp.ViewModels
                 IsLoading = true;
 
                 var csv = new System.Text.StringBuilder();
-                csv.AppendLine("Número,Tipo,Marca,Modelo,Año,Cantidad");
+                csv.AppendLine("Numero,Tipo,Marca,Modelo,Año,Cantidad");
                 var refaccionescompletas = await _apiService.ObtenerTodasRefaccionesAsync();
 
                 foreach (var r in refaccionescompletas)
@@ -635,7 +637,7 @@ namespace CarslineApp.ViewModels
                                   $"{r.Cantidad},");
                 }
 
-                var fileName = $"Inventario_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+                var fileName = $"Inventario_{DateTime.Now:dd-MMMM}.csv";
                 var filePath = Path.Combine(FileSystem.CacheDirectory, fileName);
 
                 await File.WriteAllTextAsync(filePath, csv.ToString());
