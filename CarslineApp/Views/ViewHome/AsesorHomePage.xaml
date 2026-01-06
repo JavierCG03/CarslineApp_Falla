@@ -12,8 +12,7 @@
     </FlyoutPage.Resources>
     <!-- ================== MENÚ LATERAL MEJORADO ================== -->
     <FlyoutPage.Flyout>
-        <ContentPage  BackgroundColor="#1E1E1E"  Shell.NavBarIsVisible="False"
-            NavigationPage.HasNavigationBar="False">
+        <ContentPage Title="Menú" BackgroundColor="#1E1E1E">
             <ScrollView>
                 <VerticalStackLayout Padding="0" Spacing="0">
 
@@ -218,7 +217,7 @@
     <FlyoutPage.Detail>
         <NavigationPage BarBackgroundColor="#D60000" BarTextColor="White" Shell.NavBarIsVisible="False">
             <x:Arguments>
-                <ContentPage >
+                <ContentPage Title="Dashboard">
                     <Grid RowDefinitions="Auto,*" BackgroundColor="#F5F5F5">
 
                         <!-- ==================== HEADER SIMPLIFICADO ==================== -->

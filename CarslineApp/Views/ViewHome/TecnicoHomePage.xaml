@@ -184,9 +184,9 @@
 
     <!-- ================== CONTENIDO PRINCIPAL ================== -->
     <FlyoutPage.Detail>
-        <NavigationPage BarBackgroundColor="Transparent" BarTextColor="Transparent" Height="0" Shell.NavBarIsVisible="False">
+        <NavigationPage BarBackgroundColor="#D60000" BarTextColor="White" Shell.NavBarIsVisible="False">
             <x:Arguments>
-                <ContentPage x:Name="DetailPage">
+                <ContentPage Title="Dashboard" x:Name="DetailPage">
                     <Grid RowDefinitions="Auto,*" BackgroundColor="#F5F5F5">
 
                         <!-- HEADER -->

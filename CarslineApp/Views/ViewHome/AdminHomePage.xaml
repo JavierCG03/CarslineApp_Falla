@@ -74,26 +74,39 @@
                                     HeightRequest="55"
                                     Padding="15,0"/>
                         </Frame>
-                    </VerticalStackLayout>
+                        <!-- SEPARADOR -->
+                        <BoxView HeightRequest="1" BackgroundColor="#333" Margin="20,10"/>
 
-                    <!-- SEPARADOR -->
-                    <BoxView HeightRequest="1" BackgroundColor="#333" Margin="20,10"/>
 
-                    <!-- CERRAR SESIÓN -->
-                    <VerticalStackLayout Padding="15,10,15,20">
-                        <Frame Padding="0" 
-                               CornerRadius="12" 
-                               HasShadow="False"
-                               BackgroundColor="#404040">
-                            <Button Text="🚪 Cerrar Sesión"
-                                    Command="{Binding LogoutCommand}"
-                                    BackgroundColor="Transparent"
-                                    TextColor="White"
-                                    FontSize="16"
-                                    FontAttributes="Bold"
-                                    HorizontalOptions="FillAndExpand"
-                                    HeightRequest="55"
-                                    Padding="15,0"/>
+                        <Frame Padding="0"
+                           Margin="0,0,0,20"
+                           CornerRadius="12"
+                           HasShadow="False"
+                           BackgroundColor="#404040">
+
+                            <Grid HeightRequest="55"
+                                  Padding="15,0"
+                                  ColumnDefinitions="50,*">
+
+                                <!-- ICONO -->
+                                <ImageButton Grid.Column="0"
+                                     BackgroundColor="Transparent"
+                                     Command="{Binding LogoutCommand}"
+                                     Source="cerrarsesion.png"
+                                     WidthRequest="50"
+                                     HeightRequest="50"                             
+                                     VerticalOptions="Center"/>
+
+                                <!-- TEXTO -->
+                                <Button Grid.Column="1"
+                                        Text="Cerrar Sesión"
+                                        Command="{Binding LogoutCommand}"
+                                        BackgroundColor="#404040"
+                                        TextColor="White"
+                                        FontSize="16"
+                                        FontAttributes="Bold"
+                                        HorizontalOptions="FillAndExpand"/>
+                            </Grid>
                         </Frame>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
