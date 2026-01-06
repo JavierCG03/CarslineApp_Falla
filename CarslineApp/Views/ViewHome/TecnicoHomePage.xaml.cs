@@ -12,9 +12,11 @@ namespace CarslineApp.Views
             _viewModel = new TecnicoMainViewModel();
             BindingContext = _viewModel;
 
+
             // Configurar el comportamiento del flyout según la plataforma
             ConfigurarFlyout();
         }
+
 
         private void ConfigurarFlyout()
         {

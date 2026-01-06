@@ -19,9 +19,13 @@
             <ScrollView>
                 <VerticalStackLayout Padding="0" Spacing="0">
                     <!-- HEADER DEL MENÚ -->
-                    <Frame BackgroundColor="#D60000" Padding="20,30,20,25" Margin="0" CornerRadius="0" HasShadow="False">
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="👨‍🔧" FontSize="48" HorizontalOptions="Center"/>
+                    <Frame BackgroundColor="#D60000" Padding="10,10,20,5" Margin="0" CornerRadius="0" HasShadow="False">
+                        <VerticalStackLayout Spacing="0">
+                            <Image Source="tecnico2.png"
+                               HeightRequest="180"
+                               WidthRequest="180"
+                               HorizontalOptions="Center"
+                               Aspect="AspectFit"/>
                             <Label Text="Tecnico Mto"
                                    FontSize="22"
                                    FontAttributes="Bold"
@@ -43,76 +47,134 @@
                                FontAttributes="Bold"
                                Margin="10,0,0,10"/>
 
-                        <!-- Pendientes -->
-                        <Frame Padding="0" 
-                               Margin="0,0,0,8" 
-                               CornerRadius="12" 
-                               HasShadow="False"
-                               BackgroundColor="{Binding EsPendiente, Converter={StaticResource BoolToColorConverter}}">
-                            <Button Text="Pendientes"
+                        <Frame Padding="0"
+                           Margin="0,0,0,8"
+                           CornerRadius="12"
+                           HasShadow="False"
+                            BackgroundColor="{Binding EsPendiente, Converter={StaticResource BoolToColorConverter}}">
+
+                            <Grid HeightRequest="55"
+                                  Padding="15,0"
+                                  ColumnDefinitions="*,50">
+
+                                <!-- ICONO -->
+                                <ImageButton Grid.Column="1"
                                     Command="{Binding VerPendientesCommand}"
                                     BackgroundColor="Transparent"
-                                    TextColor="White"
-                                    FontSize="16"
-                                    FontAttributes="Bold"
-                                    HorizontalOptions="FillAndExpand"
-                                    HeightRequest="55"
-                                    Padding="15,0"/>
+                                    Source="pendiente.png"
+                                     WidthRequest="50"
+                                     HeightRequest="50"                             
+                                     VerticalOptions="Center"/>
+
+                                <!-- TEXTO -->
+                                <Button Grid.Column="0"
+                                        Text="Pendientes"
+                                        Command="{Binding VerPendientesCommand}"
+                                        BackgroundColor="Transparent"
+                                        TextColor="White"
+                                        FontSize="16"
+                                        FontAttributes="Bold"
+                                        HorizontalOptions="FillAndExpand"/>
+
+                            </Grid>
                         </Frame>
 
-                        <!-- Pausadas -->
-                        <Frame Padding="0" 
-                               Margin="0,0,0,8" 
-                               CornerRadius="12" 
-                               HasShadow="False"
-                               BackgroundColor="{Binding EsPausado, Converter={StaticResource BoolToColorConverter}}">
-                            <Button Text="Pausados"
+                        <Frame Padding="0"
+                           Margin="0,0,0,8"
+                           CornerRadius="12"
+                           HasShadow="False"
+                           BackgroundColor="{Binding EsPausado, Converter={StaticResource BoolToColorConverter}}">
+
+                            <Grid HeightRequest="55"
+                                  Padding="15,0"
+                                  ColumnDefinitions="*,50">
+
+                                <!-- ICONO -->
+                                <ImageButton Grid.Column="1"
                                     Command="{Binding VerPausadosCommand}"
                                     BackgroundColor="Transparent"
-                                    TextColor="White"
-                                    FontSize="16"
-                                    FontAttributes="Bold"
-                                    HorizontalOptions="FillAndExpand"
-                                    HeightRequest="55"
-                                    Padding="15,0"/>
-                        </Frame>
+                                    Source="pausa.png"
+                                     WidthRequest="50"
+                                     HeightRequest="50"                             
+                                     VerticalOptions="Center"/>
 
+                                <!-- TEXTO -->
+                                <Button Grid.Column="0"
+                                        Text="Pausados"
+                                        Command="{Binding VerPausadosCommand}"
+                                        BackgroundColor="Transparent"
+                                        TextColor="White"
+                                        FontSize="16"
+                                        FontAttributes="Bold"
+                                        HorizontalOptions="FillAndExpand"/>
+
+                            </Grid>
+                        </Frame>
+                        
                         <!-- Finalizados -->
-                        <Frame Padding="0" 
-                               Margin="0,0,0,8" 
-                               CornerRadius="12" 
-                               HasShadow="False"
-                               BackgroundColor="{Binding EsFinalizado, Converter={StaticResource BoolToColorConverter}}">
-                            <Button Text="Finalizados"
+                        <Frame Padding="0"
+                           Margin="0,0,0,8"
+                           CornerRadius="12"
+                           HasShadow="False"
+                           BackgroundColor="{Binding EsFinalizado, Converter={StaticResource BoolToColorConverter}}">
+
+                            <Grid HeightRequest="55"
+                                  Padding="15,0"
+                                  ColumnDefinitions="*,50">
+
+                                <!-- ICONO -->
+                                <ImageButton Grid.Column="1"
                                     Command="{Binding VerFinalizadosCommand}"
                                     BackgroundColor="Transparent"
-                                    TextColor="White"
-                                    FontSize="16"
-                                    FontAttributes="Bold"
-                                    HorizontalOptions="FillAndExpand"
-                                    HeightRequest="55"
-                                    Padding="15,0"/>
+                                    Source="finalizado.png"
+                                     WidthRequest="50"
+                                     HeightRequest="50"                             
+                                     VerticalOptions="Center"/>
+
+                                <!-- TEXTO -->
+                                <Button Grid.Column="0"
+                                        Text="Finalizados"
+                                        Command="{Binding VerFinalizadosCommand}"
+                                        BackgroundColor="Transparent"
+                                        TextColor="White"
+                                        FontSize="16"
+                                        FontAttributes="Bold"
+                                        HorizontalOptions="FillAndExpand"/>
+
+                            </Grid>
                         </Frame>
-                    </VerticalStackLayout>
+                        
+                        <BoxView HeightRequest="1" BackgroundColor="#333" Margin="20,10"/>
 
-                    <!-- SEPARADOR -->
-                    <BoxView HeightRequest="1" BackgroundColor="#333" Margin="20,10"/>
+                        <Frame Padding="0"
+                           Margin="0,0,0,20"
+                           CornerRadius="12"
+                           HasShadow="False"
+                           BackgroundColor="#404040">
 
-                    <!-- CERRAR SESIÓN -->
-                    <VerticalStackLayout Padding="15,10,15,20">
-                        <Frame Padding="0" 
-                               CornerRadius="12" 
-                               HasShadow="False"
-                               BackgroundColor="#404040">
-                            <Button Text="🚪 Cerrar Sesión"
-                                    Command="{Binding LogoutCommand}"
-                                    BackgroundColor="Transparent"
-                                    TextColor="White"
-                                    FontSize="16"
-                                    FontAttributes="Bold"
-                                    HorizontalOptions="FillAndExpand"
-                                    HeightRequest="55"
-                                    Padding="15,0"/>
+                            <Grid HeightRequest="55"
+                                  Padding="15,0"
+                                  ColumnDefinitions="50,*">
+
+                                <!-- ICONO -->
+                                <ImageButton Grid.Column="0"
+                                     BackgroundColor="Transparent"
+                                     Command="{Binding LogoutCommand}"
+                                     Source="cerrarsesion.png"
+                                     WidthRequest="50"
+                                     HeightRequest="50"                             
+                                     VerticalOptions="Center"/>
+
+                                <!-- TEXTO -->
+                                <Button Grid.Column="1"
+                                        Text="Cerrar Sesión"
+                                        Command="{Binding LogoutCommand}"
+                                        BackgroundColor="#404040"
+                                        TextColor="White"
+                                        FontSize="16"
+                                        FontAttributes="Bold"
+                                        HorizontalOptions="FillAndExpand"/>
+                            </Grid>
                         </Frame>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
@@ -122,24 +184,22 @@
 
     <!-- ================== CONTENIDO PRINCIPAL ================== -->
     <FlyoutPage.Detail>
-        <NavigationPage BarBackgroundColor="#D60000" BarTextColor="White" Shell.NavBarIsVisible="False">
+        <NavigationPage BarBackgroundColor="Transparent" BarTextColor="Transparent" Height="0" Shell.NavBarIsVisible="False">
             <x:Arguments>
-                <ContentPage Title="Dashboard" x:Name="DetailPage">
+                <ContentPage x:Name="DetailPage">
                     <Grid RowDefinitions="Auto,*" BackgroundColor="#F5F5F5">
 
                         <!-- HEADER -->
                         <Frame Grid.Row="0" BackgroundColor="#D60000" Padding="10,10" Margin="0" CornerRadius="0" HasShadow="True">
                             <Grid ColumnDefinitions="Auto,*">
-                                <Button Grid.Column="0"
-                                        Text="☰"
-                                        FontSize="28"
-                                        TextColor="White"
-                                        BackgroundColor="Transparent"
-                                        WidthRequest="30"
-                                        HeightRequest="30"
-                                        Padding="0"
-                                        VerticalOptions="Center"
-                                        Clicked="OnMenuButtonClicked"/>
+                                <ImageButton Grid.Column="0"
+                                         Clicked="OnMenuButtonClicked"
+                                         Source="menu.png"
+                                         BackgroundColor="Transparent"
+                                         WidthRequest="55"
+                                         HeightRequest="55"
+                                         HorizontalOptions="Start"
+                                         VerticalOptions="Center"/>
                                 <Label Grid.Column="1" 
                                        Text="{Binding TituloSeccion}"
                                        FontSize="23" 

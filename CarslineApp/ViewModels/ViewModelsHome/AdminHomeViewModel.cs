@@ -24,13 +24,19 @@ namespace CarslineApp.ViewModels.ViewModelsHome
         public AdminHomeViewModel()
         {
             _apiService = new ApiService();
-            CrearUsuarioCommand = new Command(async () => await OnCrearUsuario(), () => !IsLoading);
-            LogoutCommand = new Command(async () => await OnLogout());
+
+            // Comandos del menú lateral
             VerUsuariosCommand = new Command(async () => await OnVerUsuarios());
-            VerInventarioCommand = new Command(async () => await OnVerInventario()); // NUEVO COMANDO
+            VerInventarioCommand = new Command(async () => await OnVerInventario());
+            LogoutCommand = new Command(async () => await OnLogout());
+
+            // Comando del formulario
+            CrearUsuarioCommand = new Command(async () => await OnCrearUsuario(), () => !IsLoading);
 
             CargarDatosIniciales();
         }
+
+        #region Propiedades
 
         public string NombreUsuarioActual
         {
@@ -127,10 +133,18 @@ namespace CarslineApp.ViewModels.ViewModelsHome
             }
         }
 
+        #endregion
+
+        #region Comandos
+
         public ICommand CrearUsuarioCommand { get; }
         public ICommand LogoutCommand { get; }
         public ICommand VerUsuariosCommand { get; }
-        public ICommand VerInventarioCommand { get; } // NUEVO COMANDO
+        public ICommand VerInventarioCommand { get; }
+
+        #endregion
+
+        #region Métodos Privados
 
         private async void CargarDatosIniciales()
         {
@@ -142,6 +156,7 @@ namespace CarslineApp.ViewModels.ViewModelsHome
         {
             try
             {
+                IsLoading = true;
                 var roles = await _apiService.ObtenerRolesAsync();
                 RolesDisponibles.Clear();
                 foreach (var rol in roles)
@@ -153,10 +168,15 @@ namespace CarslineApp.ViewModels.ViewModelsHome
             {
                 ErrorMessage = $"Error al cargar roles: {ex.Message}";
             }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         private async Task OnCrearUsuario()
         {
+            // Validaciones
             if (string.IsNullOrWhiteSpace(NuevoNombreCompleto))
             {
                 ErrorMessage = "Por favor ingresa el nombre completo";
@@ -171,13 +191,13 @@ namespace CarslineApp.ViewModels.ViewModelsHome
 
             if (string.IsNullOrWhiteSpace(NuevaPassword))
             {
-                ErrorMessage = "Por favor ingresa la contrasena";
+                ErrorMessage = "Por favor ingresa la contraseña";
                 return;
             }
 
-            if (NuevaPassword.Length < 6)
+            if (NuevaPassword.Length < 8)
             {
-                ErrorMessage = "La contrasena debe tener al menos 6 caracteres";
+                ErrorMessage = "La contraseña debe tener al menos 6 caracteres";
                 return;
             }
 
@@ -204,15 +224,16 @@ namespace CarslineApp.ViewModels.ViewModelsHome
 
                 if (response.Success)
                 {
-                    SuccessMessage = "Usuario creado exitosamente";
+                    SuccessMessage = "✅ Usuario creado exitosamente";
 
+                    // Limpiar formulario
                     NuevoNombreCompleto = string.Empty;
                     NuevoNombreUsuario = string.Empty;
                     NuevaPassword = string.Empty;
                     RolSeleccionado = null;
 
                     await Application.Current.MainPage.DisplayAlert(
-                        "Exito",
+                        "Éxito",
                         $"El usuario ha sido creado correctamente",
                         "OK");
                 }
@@ -224,6 +245,10 @@ namespace CarslineApp.ViewModels.ViewModelsHome
             catch (Exception ex)
             {
                 ErrorMessage = $"Error: {ex.Message}";
+                await Application.Current.MainPage.DisplayAlert(
+                    "Error",
+                    $"No se pudo crear el usuario: {ex.Message}",
+                    "OK");
             }
             finally
             {
@@ -233,36 +258,65 @@ namespace CarslineApp.ViewModels.ViewModelsHome
 
         private async Task OnVerUsuarios()
         {
-            // Navegar a la pagina de lista de usuarios (carga bajo demanda)
-            await Application.Current.MainPage.Navigation.PushAsync(new ListaUsuariosPage());
+            try
+            {
+                IsLoading = true;
+                await Application.Current.MainPage.Navigation.PushAsync(new ListaUsuariosPage());
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert(
+                    "Error",
+                    $"No se pudo abrir la lista de usuarios: {ex.Message}",
+                    "OK");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
-        // NUEVO MÉTODO PARA NAVEGAR AL INVENTARIO
         private async Task OnVerInventario()
         {
-            await Application.Current.MainPage.Navigation.PushAsync(new InventarioPage());
+            try
+            {
+                IsLoading = true;
+                await Application.Current.MainPage.Navigation.PushAsync(new InventarioPage());
+            }
+            catch (Exception ex)
+            {
+                await Application.Current.MainPage.DisplayAlert(
+                    "Error",
+                    $"No se pudo abrir el inventario: {ex.Message}",
+                    "OK");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         private async Task OnLogout()
         {
             bool confirm = await Application.Current.MainPage.DisplayAlert(
-                "Cerrar Sesion",
-                "Estas seguro que deseas cerrar sesion?",
-                "Si",
+                "Cerrar Sesión",
+                "¿Estás seguro que deseas cerrar sesión?",
+                "Sí",
                 "No");
 
             if (confirm)
             {
                 Preferences.Clear();
 
-                // Navegar de vuelta al login
                 Application.Current.MainPage = new NavigationPage(new LoginPage())
                 {
-                    BarBackgroundColor = Color.FromArgb("#512BD4"),
+                    BarBackgroundColor = Color.FromArgb("#D60000"),
                     BarTextColor = Colors.White
                 };
             }
         }
+
+        #endregion
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

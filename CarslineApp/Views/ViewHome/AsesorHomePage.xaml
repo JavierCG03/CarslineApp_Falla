@@ -12,14 +12,19 @@
     </FlyoutPage.Resources>
     <!-- ================== MENÚ LATERAL MEJORADO ================== -->
     <FlyoutPage.Flyout>
-        <ContentPage Title="Menú" BackgroundColor="#1E1E1E">
+        <ContentPage  BackgroundColor="#1E1E1E"  Shell.NavBarIsVisible="False"
+            NavigationPage.HasNavigationBar="False">
             <ScrollView>
                 <VerticalStackLayout Padding="0" Spacing="0">
 
                     <!-- HEADER DEL MENÚ -->
                     <Frame BackgroundColor="#D60000" Padding="20,30,20,25" Margin="0" CornerRadius="0" HasShadow="False">
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="👨‍💼" FontSize="48" HorizontalOptions="Center"/>
+                            <Image Source="asesor.png"
+                               HeightRequest="70"
+                               WidthRequest="70"
+                               HorizontalOptions="Center"
+                               Aspect="AspectFit"/>
                             <Label Text="Asesor Sevicio"
                                    FontSize="22"
                                    FontAttributes="Bold"
@@ -40,96 +45,170 @@
                                FontAttributes="Bold"
                                Margin="10,0,0,10"/>
 
-                        <!-- SERVICIO -->
-                        <Frame Padding="0" 
-                               Margin="0,0,0,8" 
-                               CornerRadius="12" 
-                               HasShadow="False"
-                               BackgroundColor="{Binding EsServicio, Converter={StaticResource BoolToColorConverter}}">
-                            <Button Text="🔧 Servicio"
-                                    Command="{Binding VerServicioCommand}"
-                                    BackgroundColor="Transparent"
-                                    TextColor="White"
-                                    FontSize="16"
-                                    FontAttributes="Bold"
-                                    HorizontalOptions="FillAndExpand"
-                                    HeightRequest="55"
-                                    Padding="15,0"/>
+                        <Frame Padding="0"
+                            Margin="0,0,0,8"
+                            CornerRadius="12"
+                            HasShadow="False"
+                            BackgroundColor="{Binding EsServicio, Converter={StaticResource BoolToColorConverter}}">
+
+                            <Grid HeightRequest="55"
+                                   Padding="15,0"
+                                   ColumnDefinitions="*,50">
+
+                                <!-- ICONO -->
+                                <ImageButton Grid.Column="1"
+                                      Command="{Binding VerServicioCommand}"
+                                      BackgroundColor="Transparent"
+                                      Source="servicio.png"
+                                      WidthRequest="50"
+                                      HeightRequest="50"                             
+                                      VerticalOptions="Center"/>
+
+                                <!-- TEXTO -->
+                                <Button Grid.Column="0"
+                                         Text="Servicios"
+                                         Command="{Binding VerServicioCommand}"
+                                         BackgroundColor="Transparent"
+                                         TextColor="White"
+                                         FontSize="16"
+                                         FontAttributes="Bold"
+                                         HorizontalOptions="FillAndExpand"/>
+
+                            </Grid>
                         </Frame>
 
                         <!-- DIAGNÓSTICO -->
-                        <Frame Padding="0" 
-                               Margin="0,0,0,8" 
-                               CornerRadius="12" 
-                               HasShadow="False"
-                               BackgroundColor="{Binding EsDiagnostico, Converter={StaticResource BoolToColorConverter}}">
-                            <Button Text="🔍 Diagnóstico"
-                                    Command="{Binding VerDiagnosticoCommand}"
-                                    BackgroundColor="Transparent"
-                                    TextColor="White"
-                                    FontSize="16"
-                                    FontAttributes="Bold"
-                                    HorizontalOptions="FillAndExpand"
-                                    HeightRequest="55"
-                                    Padding="15,0"/>
+                        <Frame Padding="0"
+                            Margin="0,0,0,8"
+                            CornerRadius="12"
+                            HasShadow="False"
+                            BackgroundColor="{Binding EsDiagnostico, Converter={StaticResource BoolToColorConverter}}">
+
+                            <Grid HeightRequest="55"
+                                   Padding="15,0"
+                                   ColumnDefinitions="*,50">
+
+                                <!-- ICONO -->
+                                <ImageButton Grid.Column="1"
+                                      Command="{Binding VerDiagnosticoCommand}"
+                                      BackgroundColor="Transparent"
+                                      Source="diagnostico.png"
+                                      WidthRequest="50"
+                                      HeightRequest="50"                             
+                                      VerticalOptions="Center"/>
+
+                                <!-- TEXTO -->
+                                <Button Grid.Column="0"
+                                         Text="Diagnósticos"
+                                         Command="{Binding VerDiagnosticoCommand}"
+                                         BackgroundColor="Transparent"
+                                         TextColor="White"
+                                         FontSize="16"
+                                         FontAttributes="Bold"
+                                         HorizontalOptions="FillAndExpand"/>
+
+                            </Grid>
                         </Frame>
 
-                        <!-- REPARACIÓN -->
-                        <Frame Padding="0" 
-                               Margin="0,0,0,8" 
-                               CornerRadius="12" 
-                               HasShadow="False"
-                               BackgroundColor="{Binding EsReparacion, Converter={StaticResource BoolToColorConverter}}">
-                            <Button Text="🔨 Reparación"
-                                    Command="{Binding VerReparacionCommand}"
-                                    BackgroundColor="Transparent"
-                                    TextColor="White"
-                                    FontSize="16"
-                                    FontAttributes="Bold"
-                                    HorizontalOptions="FillAndExpand"
-                                    HeightRequest="55"
-                                    Padding="15,0"/>
+                        <!-- REPARACION-->
+                        <Frame Padding="0"
+                            Margin="0,0,0,8"
+                            CornerRadius="12"
+                            HasShadow="False"
+                            BackgroundColor="{Binding EsReparacion, Converter={StaticResource BoolToColorConverter}}">
+
+                            <Grid HeightRequest="55"
+                                   Padding="15,0"
+                                   ColumnDefinitions="*,50">
+
+                                <!-- ICONO -->
+                                <ImageButton Grid.Column="1"
+                                      Command="{Binding VerReparacionCommand}"
+                                      BackgroundColor="Transparent"
+                                      Source="reparacion.png"
+                                      WidthRequest="50"
+                                      HeightRequest="50"                             
+                                      VerticalOptions="Center"/>
+
+                                <!-- TEXTO -->
+                                <Button Grid.Column="0"
+                                         Text="Reparaciónes"
+                                         Command="{Binding VerReparacionCommand}"
+                                         BackgroundColor="{Binding EsReparacion, Converter={StaticResource BoolToColorConverter}}"
+                                         TextColor="White"
+                                         FontSize="16"
+                                         FontAttributes="Bold"
+                                         HorizontalOptions="FillAndExpand"/>
+
+                            </Grid>
                         </Frame>
 
-                        <!-- GARANTÍA -->
-                        <Frame Padding="0" 
-                               Margin="0,0,0,8" 
-                               CornerRadius="12" 
-                               HasShadow="False"
-                               BackgroundColor="{Binding EsGarantia, Converter={StaticResource BoolToColorConverter}}">
-                            <Button Text="✅ Garantía"
-                                    Command="{Binding VerGarantiaCommand}"
-                                    BackgroundColor="Transparent"
-                                    TextColor="White"
-                                    FontSize="16"
-                                    FontAttributes="Bold"
-                                    HorizontalOptions="FillAndExpand"
-                                    HeightRequest="55"
-                                    Padding="15,0"/>
+                        <!--GARANTIA -->
+                        <Frame Padding="0"
+                            Margin="0,0,0,8"
+                            CornerRadius="12"
+                            HasShadow="False"
+                            BackgroundColor="{Binding EsGarantia, Converter={StaticResource BoolToColorConverter}}">
+
+                            <Grid HeightRequest="55"
+                                   Padding="15,0"
+                                   ColumnDefinitions="*,50">
+
+                                <!-- ICONO -->
+                                <ImageButton Grid.Column="1"
+                                     Command="{Binding VerGarantiaCommand}"
+                                     BackgroundColor="Transparent"
+                                     Source="garantia.png"
+                                      WidthRequest="50"
+                                      HeightRequest="50"                             
+                                      VerticalOptions="Center"/>
+
+                                <!-- TEXTO -->
+                                <Button Grid.Column="0"
+                                         Text="Garantias"
+                                         Command="{Binding VerGarantiaCommand}"
+                                         BackgroundColor="{Binding EsGarantia, Converter={StaticResource BoolToColorConverter}}"
+                                         TextColor="White"
+                                         FontSize="16"
+                                         FontAttributes="Bold"
+                                         HorizontalOptions="FillAndExpand"/>
+                            </Grid>
+                        </Frame>
+
+                        <!-- SEPARADOR -->
+                        <BoxView HeightRequest="1" BackgroundColor="#333" Margin="20,10"/>
+
+                        <Frame Padding="0"
+                           Margin="0,0,0,20"
+                           CornerRadius="12"
+                           HasShadow="False"
+                           BackgroundColor="#404040">
+
+                            <Grid HeightRequest="55"
+                                  Padding="15,0"
+                                  ColumnDefinitions="50,*">
+
+                                <!-- ICONO -->
+                                <ImageButton Grid.Column="0"
+                                     BackgroundColor="Transparent"
+                                     Command="{Binding LogoutCommand}"
+                                     Source="cerrarsesion.png"
+                                     WidthRequest="50"
+                                     HeightRequest="50"                             
+                                     VerticalOptions="Center"/>
+
+                                <!-- TEXTO -->
+                                <Button Grid.Column="1"
+                                        Text="Cerrar Sesión"
+                                        Command="{Binding LogoutCommand}"
+                                        BackgroundColor="#404040"
+                                        TextColor="White"
+                                        FontSize="16"
+                                        FontAttributes="Bold"
+                                        HorizontalOptions="FillAndExpand"/>
+                            </Grid>
                         </Frame>
                     </VerticalStackLayout>
-
-                    <!-- SEPARADOR -->
-                    <BoxView HeightRequest="1" BackgroundColor="#333" Margin="20,10"/>
-
-                    <!-- CERRAR SESIÓN -->
-                    <VerticalStackLayout Padding="15,10,15,20">
-                        <Frame Padding="0" 
-                               CornerRadius="12" 
-                               HasShadow="False"
-                               BackgroundColor="#404040">
-                            <Button Text="🚪 Cerrar Sesión"
-                                    Command="{Binding LogoutCommand}"
-                                    BackgroundColor="Transparent"
-                                    TextColor="White"
-                                    FontSize="16"
-                                    FontAttributes="Bold"
-                                    HorizontalOptions="FillAndExpand"
-                                    HeightRequest="55"
-                                    Padding="15,0"/>
-                        </Frame>
-                    </VerticalStackLayout>
-
                 </VerticalStackLayout>
             </ScrollView>
         </ContentPage>
@@ -139,48 +218,36 @@
     <FlyoutPage.Detail>
         <NavigationPage BarBackgroundColor="#D60000" BarTextColor="White" Shell.NavBarIsVisible="False">
             <x:Arguments>
-                <ContentPage Title="Dashboard">
+                <ContentPage >
                     <Grid RowDefinitions="Auto,*" BackgroundColor="#F5F5F5">
 
                         <!-- ==================== HEADER SIMPLIFICADO ==================== -->
-                        <Frame Grid.Row="0" BackgroundColor="#D60000" Padding="10,10" Margin="0" CornerRadius="0" HasShadow="True">
+                        <Frame Grid.Row="0" BackgroundColor="#D60000" Padding="15,10" Margin="0" CornerRadius="0" HasShadow="True">
                             <Grid ColumnDefinitions="Auto,*,Auto">
                                 <!-- BOTÓN HAMBURGUESA PARA WINDOWS -->
-                                <Button Grid.Column="0"
-                                        Text="☰"
-                                        FontSize="28"
-                                        TextColor="White"
-                                        BackgroundColor="Transparent"
-                                        WidthRequest="30"
-                                        HeightRequest="30"
-                                        Padding="0"
-                                        VerticalOptions="Center"
-                                        Clicked="OnMenuButtonClicked"/>
+                                <ImageButton Grid.Column="0"
+                                         Clicked="OnMenuButtonClicked"
+                                         Source="menu.png"
+                                         BackgroundColor="Transparent"
+                                         WidthRequest="55"
+                                         HeightRequest="55"
+                                         HorizontalOptions="Start"
+                                         VerticalOptions="Center"/>
                                 <Label Grid.Column="1" 
                                        Text="{Binding TituloSeccion}"
-                                       FontSize="23" 
+                                       FontSize="22" 
                                        FontAttributes="Bold"
                                        TextColor="White" 
                                        HorizontalOptions="Center"
                                        VerticalOptions="Center"/>
-                                <Frame Grid.Column="2"  
-                                   Padding="0" 
-                                   Margin="0,0,0,8" 
-                                   CornerRadius="12" 
-                                   HasShadow="False"
-                                   WidthRequest="165"
-                                   HeightRequest="50"
-                                   BackgroundColor="#000000">
-                                    <Button Text="+ CREAR ORDEN"
-                                        Command="{Binding CrearOrdenCommand}"
-                                        BackgroundColor="Transparent"
-                                        TextColor="White"
-                                        FontSize="Default"
-                                        FontAttributes="Bold"
-                                        HorizontalOptions="FillAndExpand"
-                                        HeightRequest="55"
-                                        Padding="15,0"/>
-                                </Frame>
+                                <ImageButton Grid.Column="2"
+                                         Command="{Binding CrearOrdenCommand}"
+                                         Source="neworder.png"
+                                         BackgroundColor="Transparent"
+                                         WidthRequest="60"
+                                         HeightRequest="60"
+                                         HorizontalOptions="Start"
+                                         VerticalOptions="Center"/>
                             </Grid>
                         </Frame>
 
