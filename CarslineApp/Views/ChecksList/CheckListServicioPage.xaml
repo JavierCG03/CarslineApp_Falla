@@ -2,51 +2,103 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="CarslineApp.Views.CheckListServicioPage"
-             Title="Checklist de Servicio">
-    <Grid>
-        <ScrollView>
+             Shell.NavBarIsVisible="False"
+             NavigationPage.HasNavigationBar="False">
+    <Grid RowDefinitions="Auto,*">
+
+
+        <Frame Grid.Row="0" BackgroundColor="#C62828" CornerRadius="5">
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Grid.Column="0"
+                        Text="{Binding Trabajo}"                     
+                        FontSize="20"
+                        FontAttributes="Bold"
+                        HorizontalOptions="Center"
+                        TextColor="White"/>
+                <Label Grid.Column="1"
+                        Text="{Binding Orden, StringFormat='📋 {0}'}"
+                        FontSize="15"
+                        HorizontalOptions="End"
+                        TextColor="White"/>
+            </Grid>
+        </Frame>
+
+        <ScrollView Grid.Row="1">
             <VerticalStackLayout Padding="20" Spacing="20">
 
                 <Label Text="Checklist de Servicio"
-                       FontSize="22"
+                       FontSize="20"
                        FontAttributes="Bold"
                        HorizontalOptions="Center"/>
-
-
-                <Label Text="Revisiones Basicas del Servicio"
-                       FontSize="18"
-                       HorizontalOptions="Start"
+                
+                <Grid ColumnDefinitions="93,*">
+                    <Label Text="Vehiculo:"
+                       TextColor="#C62828"
+                       FontSize="16"
                        FontAttributes="Bold"/>
-                <!--Sistema de Direccion-->           
+                    <Label Grid.Column="1"
+                       Text="{Binding Vehiculo}"
+                       FontSize="15"
+                       VerticalOptions="End"
+                       HorizontalOptions="Start"/>
+
+                </Grid>
+
+                <Grid ColumnDefinitions="42,*">
+                    <Label Text="VIN:"
+                       TextColor="#C62828"
+                       FontSize="16"
+                       FontAttributes="Bold"/>
+                    <Label Grid.Column="1"
+                       Text="{Binding VehiculoVIN}"
+                       FontSize="15"
+                       VerticalOptions="End"
+                       HorizontalOptions="Start"/>
+
+                </Grid>
+                
+
+
+
+
+                <!--Sistema de Direccion-->
                 <Frame Padding="10"
                    BackgroundColor="White"
+                   BorderColor="#C62828"
+                   HasShadow="True"
                    CornerRadius="10">
 
                     <VerticalStackLayout Spacing="10">
-
-                        <!-- TÍTULO -->
-                        <Label Text="Sistema de Dirección"
-                           FontSize="15"
-                           HorizontalOptions="Center"
-                           FontAttributes="Bold"/>
-
+                        <Border BackgroundColor="#C62828"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="8">
+                            <Label Text="⚙️ Sistema de Dirección"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="White"/>
+                        </Border>
                         <!-- ENCABEZADOS -->
                         <Grid ColumnDefinitions="*,*,*,*" VerticalOptions="Center" >
 
                             <Label Grid.Column="1"
                                Text="Buen estado"
+                               FontAttributes="Bold"
                                TextColor="Green"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
 
                             <Label Grid.Column="2"
                                Text="Vida media"
+                               FontAttributes="Bold"
                                TextColor="#FFA000"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
 
                             <Label Grid.Column="3"
                                Text="Atención urgente"
+                               FontAttributes="Bold"
                                TextColor="Red"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
@@ -163,54 +215,72 @@
                                  CheckedChanged="Radio_CheckedChanged"
                                  HorizontalOptions="Center"/>
                         </Grid>
-                        
-                        <Label Text="Comentarios sobre el estado de la Direccion del Vehiculo"
-                                        FontSize="12"
-                                        TextColor="#757575"/>
-                        <Border BackgroundColor="White"
-                                         StrokeThickness=".7"
-                                         Stroke="#BDBDBD"
-                                         Padding="8"
-                                         StrokeShape="RoundRectangle 8">
-                            <Editor Text="{Binding ComentariosDireccion}"
-                                        Placeholder="Ej: El vehiculo tiene una fuga de aceite en la caja de direccion..."
-                                        FontSize="14"
-                                        AutoSize="TextChanges"
-                                        HeightRequest="120" />
-                        </Border>
-                        
+
+                        <Frame
+                            BackgroundColor="#FFEBEE"
+                            Padding="8"
+                            HasShadow="False"
+                            BorderColor="#D32F2F" 
+                            CornerRadius="6">
+                            <VerticalStackLayout Spacing="5">
+                                <Label Text="💬 Comentarios sobre el estado de la Direccion del Vehiculo"
+                                    FontSize="12"
+                                    FontAttributes="Bold"
+                                    TextColor="#C62828"/>
+                                <Border BackgroundColor="White"
+                                    StrokeThickness="1"
+                                    Stroke="#BDBDBD"
+                                    Padding="8"
+                                    StrokeShape="RoundRectangle 6">
+                                    <Editor Text="{Binding ComentariosDireccion}"
+                                        Placeholder="Ej... El vehiculo tiene una fuga de aceite en la caja de direccion.."
+                                        FontSize="13"
+                                        TextColor="#404040"/>
+                                </Border>
+                            </VerticalStackLayout>
+                        </Frame>
                     </VerticalStackLayout>
                 </Frame>
                 <!--Sistema de Suspension-->
                 <Frame Padding="10"
+                   BorderColor="#C62828"
+                   HasShadow="True"
                    BackgroundColor="White"
                    CornerRadius="10">
 
                     <VerticalStackLayout Spacing="10">
-
-                        <!-- TÍTULO -->
-                        <Label Text="Sistema de Suspension"
-                           FontSize="15"
-                           HorizontalOptions="Center"
-                           FontAttributes="Bold"/>
+                        
+                        <Border BackgroundColor="#C62828"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="8">
+                            <Label Text="⚙️ Sistema de Suspension"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="White"/>
+                        </Border>
 
                         <!-- ENCABEZADOS -->
                         <Grid ColumnDefinitions="*,*,*,*" VerticalOptions="Center" >
 
                             <Label Grid.Column="1"
                                Text="Buen estado"
+                               FontAttributes="Bold"
                                TextColor="Green"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
 
                             <Label Grid.Column="2"
                                Text="Vida media"
+                               FontAttributes="Bold"
                                TextColor="#FFA000"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
 
                             <Label Grid.Column="3"
                                Text="Atención urgente"
+                               FontAttributes="Bold"
                                TextColor="Red"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
@@ -328,52 +398,69 @@
                                  HorizontalOptions="Center"/>
                         </Grid>
                         
-                        <Label Text="Comentarios sobre el estado de la Suspencion del Vehiculo"
-                                        FontSize="12"
-                                        TextColor="#757575"/>
-                        <Border BackgroundColor="White"
-                                         StrokeThickness=".7"
-                                         Stroke="#BDBDBD"
-                                         Padding="8"
-                                         StrokeShape="RoundRectangle 8">
-                            <Editor Text="{Binding ComentariosSuspension}"
-                                        Placeholder="Ej: El vehiculo presenta fuga en el amorticguador delantero derecho.."
-                                        FontSize="14"
-                                        AutoSize="TextChanges"
-                                        HeightRequest="120" />
-                        </Border>
+                        <Frame
+                            BackgroundColor="#FFEBEE"
+                            Padding="8"
+                            HasShadow="False"
+                            BorderColor="#D32F2F" 
+                            CornerRadius="6">
+                            <VerticalStackLayout Spacing="5">
+                                <Label Text="💬 Comentarios sobre el estado de la Suspencion del Vehiculo"
+                                    FontSize="12"
+                                    FontAttributes="Bold"
+                                    TextColor="#C62828"/>
+                                <Border BackgroundColor="White"
+                                    StrokeThickness="1"
+                                    Stroke="#BDBDBD"
+                                    Padding="8"
+                                    StrokeShape="RoundRectangle 6">
+                                    <Editor Text="{Binding ComentariosSuspension}"
+                                        Placeholder="Ej... El amortiguador delantero derecho tiene fuga de aceite .."
+                                        FontSize="13"
+                                        TextColor="#404040"/>
+                                </Border>
+                            </VerticalStackLayout>
+                        </Frame>
                     </VerticalStackLayout>
                 </Frame>
                 <!--Sistema de Frenado-->
                 <Frame Padding="10"
+                   BorderColor="#C62828"
+                   HasShadow="True"
                    BackgroundColor="White"
                    CornerRadius="10">
 
                     <VerticalStackLayout Spacing="10">
-
-                        <!-- TÍTULO -->
-                        <Label Text="Sistema de Frenado"
-                           FontSize="15"
-                           HorizontalOptions="Center"
-                           FontAttributes="Bold"/>
-
+                        <Border BackgroundColor="#C62828"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="8">
+                            <Label Text="⚙️ Sistema de Frenado"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="White"/>
+                        </Border>
                         <!-- ENCABEZADOS -->
                         <Grid ColumnDefinitions="*,*,*,*" VerticalOptions="Center" >
 
                             <Label Grid.Column="1"
                                Text="Buen estado"
+                               FontAttributes="Bold"
                                TextColor="Green"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
 
                             <Label Grid.Column="2"
                                Text="Vida media"
+                               FontAttributes="Bold"
                                TextColor="#FFA000"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
 
                             <Label Grid.Column="3"
                                Text="Atención urgente"
+                               FontAttributes="Bold"
                                TextColor="Red"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
@@ -447,24 +534,28 @@
 
                             <Label Grid.Column="1"
                                Text="Mas de 8mm"
+                               FontAttributes="Bold"
                                TextColor="Green"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
                         
                             <Label Grid.Column="2"
                                Text="(6mm-8mm)"
+                               FontAttributes="Bold"
                                TextColor="#FFA000"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
 
                             <Label Grid.Column="3"
                                Text="(3mm-5mm)"
+                               FontAttributes="Bold"
                                TextColor="#FFA000"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
 
                             <Label Grid.Column="4"
                                Text="(1mm-2mm)"
+                               FontAttributes="Bold"
                                TextColor="Red"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
@@ -538,52 +629,71 @@
                                  CheckedChanged="Radio_CheckedChanged"
                                  HorizontalOptions="Center"/>
                         </Grid>
-                        <Label Text="Comentarios sobre el sistema de frenado del Vehiculo"
-                                        FontSize="12"
-                                        TextColor="#757575"/>
-                        <Border BackgroundColor="White"
-                                         StrokeThickness=".7"
-                                         Stroke="#BDBDBD"
-                                         Padding="8"
-                                         StrokeShape="RoundRectangle 8">
-                            <Editor Text="{Binding ComentariosFrenado}"
-                                        Placeholder="Ej: El vehiculo tiene el pedal de freno esponjoso.."
-                                        FontSize="14"
-                                        AutoSize="TextChanges"
-                                        HeightRequest="120" />
-                        </Border>
+
+                        <Frame
+                            BackgroundColor="#FFEBEE"
+                            Padding="8"
+                            HasShadow="False"
+                            BorderColor="#D32F2F" 
+                            CornerRadius="6">
+                            <VerticalStackLayout Spacing="5">
+                                <Label Text="💬 Comentarios sobre el sistema de frenado del Vehiculo"
+                                    FontSize="12"
+                                    FontAttributes="Bold"
+                                    TextColor="#C62828"/>
+                                <Border BackgroundColor="White"
+                                    StrokeThickness="1"
+                                    Stroke="#BDBDBD"
+                                    Padding="8"
+                                    StrokeShape="RoundRectangle 6">
+                                    <Editor Text="{Binding ComentariosFrenado}"
+                                        Placeholder="Ej... Los discos de freno estan muy desgastados requieren ser remplazados"
+                                        FontSize="13"
+                                        TextColor="#404040"/>
+                                </Border>
+                            </VerticalStackLayout>
+                        </Frame>
                     </VerticalStackLayout>
                 </Frame>
                 <!--Neumaticos-->
                 <Frame Padding="10"
+                   BorderColor="#C62828"
+                   HasShadow="True"
                    BackgroundColor="White"
                    CornerRadius="10">
 
                     <VerticalStackLayout Spacing="10">
-
-                        <!-- TÍTULO -->
-                        <Label Text="Neumaticos"
-                           FontSize="15"
-                           HorizontalOptions="Center"
-                           FontAttributes="Bold"/>
+                        <Border BackgroundColor="#C62828"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="8">
+                            <Label Text="⚙️ Neumaticos"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="White"/>
+                        </Border>
 
                         <!-- ENCABEZADOS -->
                         <Grid ColumnDefinitions="*,*,*,*" VerticalOptions="Center" >
 
                             <Label Grid.Column="1"
                                Text="Buen estado"
+                               FontAttributes="Bold"
                                TextColor="Green"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
 
                             <Label Grid.Column="2"
                                Text="Vida media"
+                               FontAttributes="Bold"
                                TextColor="#FFA000"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
 
                             <Label Grid.Column="3"
                                Text="Atención urgente"
+                               FontAttributes="Bold"
                                TextColor="Red"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
@@ -700,52 +810,68 @@
                                  CheckedChanged="Radio_CheckedChanged"
                                  HorizontalOptions="Center"/>
                         </Grid>
-                        
-                        <Label Text="Comentarios sobre los neumaticos del vehiculo"
-                                        FontSize="12"
-                                        TextColor="#757575"/>
-                        <Border BackgroundColor="White"
-                                         StrokeThickness=".7"
-                                         Stroke="#BDBDBD"
-                                         Padding="8"
-                                         StrokeShape="RoundRectangle 8">
-                            <Editor Text="{Binding ComentariosNeumaticos}"
-                                        Placeholder="Ej: El neumatico frontal derecho tiene protuberancias se necesita el remplazo urgente .."
-                                        FontSize="14"
-                                        AutoSize="TextChanges"
-                                        HeightRequest="120" />
-                        </Border>
+
+                        <Frame
+                            BackgroundColor="#FFEBEE"
+                            Padding="8"
+                            HasShadow="False"
+                            BorderColor="#D32F2F" 
+                            CornerRadius="6">
+                            <VerticalStackLayout Spacing="5">
+                                <Label Text="💬 Comentarios sobre los neumaticos del vehiculo"
+                                    FontSize="12"
+                                    FontAttributes="Bold"
+                                    TextColor="#C62828"/>
+                                <Border BackgroundColor="White"
+                                    StrokeThickness="1"
+                                    Stroke="#BDBDBD"
+                                    Padding="8"
+                                    StrokeShape="RoundRectangle 6">
+                                    <Editor Text="{Binding ComentariosNeumaticos}"
+                                        Placeholder="Ej... El neumatico frontal derecho tiene protuberancias se necesita el remplazo"
+                                        FontSize="13"
+                                        TextColor="#404040"/>
+                                </Border>
+                            </VerticalStackLayout>
+                        </Frame>
                     </VerticalStackLayout>
                 </Frame>
                 <!--Luces-->
                 <Frame Padding="10"
+                   BorderColor="#C62828"
+                   HasShadow="True"
                    BackgroundColor="White"
                    CornerRadius="10">
 
                     <VerticalStackLayout Spacing="10">
-
-                        <!-- TÍTULO -->
-                        <Label Text="Luces del Vehiculo"
-                           FontSize="15"
-                           HorizontalOptions="Center"
-                           FontAttributes="Bold"/>
-
+                        <Border BackgroundColor="#C62828"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="8">
+                            <Label Text="Luces del Vehiculo"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="White"/>
+                        </Border>
                         <!-- ENCABEZADOS -->
                         <Grid ColumnDefinitions="*,*,*" VerticalOptions="Center" >
 
                             <Label Grid.Column="1"
                                Text="Buen estado"
+                               FontAttributes="Bold"
                                TextColor="Green"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
 
                             <Label Grid.Column="2"
                                Text="Presenta Falla"
+                               FontAttributes="Bold"
                                TextColor="Red"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
                         </Grid>
-                    
+
                         <Grid ColumnDefinitions="*,*,*" VerticalOptions="Center">
 
                             <!-- Pregunta -->
@@ -856,7 +982,7 @@
                                  CheckedChanged="Radio_CheckedChanged"
                                  HorizontalOptions="Center"/>
                         </Grid>
-                    
+
                         <Grid ColumnDefinitions="*,*,*" VerticalOptions="Center">
 
                             <!-- Pregunta -->
@@ -878,49 +1004,63 @@
                                  CheckedChanged="Radio_CheckedChanged"
                                  HorizontalOptions="Center"/>
                         </Grid>
-                        
-                        <Label Text="Comentarios sobre las luces del vehiculo"
-                                        FontSize="12"
-                                        TextColor="#757575"/>
-                        <Border BackgroundColor="White"
-                                         StrokeThickness=".7"
-                                         Stroke="#BDBDBD"
-                                         Padding="8"
-                                         StrokeShape="RoundRectangle 8">
-                            <Editor Text="{Binding ComentariosLuces}"
-                                        Placeholder="Ej: Las luces direccionales presentan una falla urge revision .."
-                                        FontSize="14"
-                                        AutoSize="TextChanges"
-                                        HeightRequest="120" />
-                        </Border>
-
+                        <Frame
+                            BackgroundColor="#FFEBEE"
+                            Padding="8"
+                            HasShadow="False"
+                            BorderColor="#D32F2F" 
+                            CornerRadius="6">
+                            <VerticalStackLayout Spacing="5">
+                                <Label Text="💬 Comentarios sobre las luces del vehiculo"
+                                    FontSize="12"
+                                    FontAttributes="Bold"
+                                    TextColor="#C62828"/>
+                                <Border BackgroundColor="White"
+                                    StrokeThickness="1"
+                                    Stroke="#BDBDBD"
+                                    Padding="8"
+                                    StrokeShape="RoundRectangle 6">
+                                    <Editor  Text="{Binding ComentariosLuces}"
+                                        Placeholder="Ej... Las luces direccionales presentan una falla urge revision"
+                                        FontSize="13"
+                                        TextColor="#404040"/>
+                                </Border>
+                            </VerticalStackLayout>
+                        </Frame>
                     </VerticalStackLayout>
                 </Frame>
-                
                 <!--Componetes Remplazados del Vehiculo-->
                 <Frame Padding="10"
+                   BorderColor="#C62828"
+                   HasShadow="True"
                    BackgroundColor="White"
                    CornerRadius="10">
 
                     <VerticalStackLayout Spacing="10">
 
-                        <!-- TÍTULO -->
-                        <Label Text="Componetes Reemplazados al Vehiculo"
-                           FontSize="15"
-                           HorizontalOptions="Center"
-                           FontAttributes="Bold"/>
-
+                        <Border BackgroundColor="#C62828"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="8">
+                            <Label Text="Componetes Reemplazados"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="White"/>
+                        </Border>
                         <!-- ENCABEZADOS -->
                         <Grid ColumnDefinitions="*,*,*" VerticalOptions="Center" >
 
                             <Label Grid.Column="1"
                                Text="Reemplazado"
+                               FontAttributes="Bold"
                                TextColor="Green"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
 
                             <Label Grid.Column="2"
                                Text="No Aplica"
+                               FontAttributes="Bold"
                                TextColor="Red"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
@@ -1018,43 +1158,56 @@
                                  HorizontalOptions="Center"/>
 
                         </Grid>
-
-                        <Label Text="Comentarios sobre las piezas remplazadas del vehiculo"
-                                        FontSize="12"
-                                        TextColor="#757575"/>
-                        <Border BackgroundColor="White"
-                                         StrokeThickness=".7"
-                                         Stroke="#BDBDBD"
-                                         Padding="8"
-                                         StrokeShape="RoundRectangle 8">
-                            <Editor Text="{Binding ComentariosRefacciones}"
-                                        Placeholder="Ej: Al drenar el aceite este presentaba filtracion de agua necesita revision.."
-                                        FontSize="14"
-                                        AutoSize="TextChanges"
-                                        HeightRequest="120" />
-                        </Border>
-
-
+                        <Frame
+                            BackgroundColor="#FFEBEE"
+                            Padding="8"
+                            HasShadow="False"
+                            BorderColor="#D32F2F" 
+                            CornerRadius="6">
+                            <VerticalStackLayout Spacing="5">
+                                <Label Text="💬 Comentarios sobre las piezas remplazadas del vehiculo"
+                                    FontSize="12"
+                                    FontAttributes="Bold"
+                                    TextColor="#C62828"/>
+                                <Border BackgroundColor="White"
+                                    StrokeThickness="1"
+                                    Stroke="#BDBDBD"
+                                    Padding="8"
+                                    StrokeShape="RoundRectangle 6">
+                                    <Editor Text="{Binding ComentariosRefacciones}"
+                                        Placeholder="Ej... Al drenar el aceite este presentaba filtracion de agua necesita revision"
+                                        FontSize="13"
+                                        TextColor="#404040"/>
+                                </Border>
+                            </VerticalStackLayout>
+                        </Frame>
                     </VerticalStackLayout>
                 </Frame>
                 <!-- Revision de Niveles-->
                 <Frame Padding="10"
+                   BorderColor="#C62828"
+                   HasShadow="True"
                    BackgroundColor="White"
                    CornerRadius="10">
 
                     <VerticalStackLayout Spacing="10">
-
                         <!-- TÍTULO -->
-                        <Label Text="Revision de Niveles"
-                           FontSize="15"
-                           HorizontalOptions="Center"
-                           FontAttributes="Bold"/>
-
+                        <Border BackgroundColor="#C62828"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="8">
+                            <Label Text="Revision de Niveles"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="White"/>
+                        </Border>
                         <!-- ENCABEZADOS -->
                         <Grid ColumnDefinitions="*,*" VerticalOptions="Center" >
 
                             <Label Grid.Column="1"
                                Text="Nivel Optimo"
+                               FontAttributes="Bold"
                                TextColor="Green"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
@@ -1121,41 +1274,58 @@
                                  CheckedChanged="Radio_CheckedChanged"
                                  HorizontalOptions="Center"/>
                         </Grid>
+                        
+                        <Frame
+                            BackgroundColor="#FFEBEE"
+                            Padding="8"
+                            HasShadow="False"
+                            BorderColor="#D32F2F" 
+                            CornerRadius="6">
+                            <VerticalStackLayout Spacing="5">
+                                <Label Text="💬 Comentarios sobre Niveles del vehiculo"
+                                    FontSize="12"
+                                    FontAttributes="Bold"
+                                    TextColor="#C62828"/>
+                                <Border BackgroundColor="White"
+                                    StrokeThickness="1"
+                                    Stroke="#BDBDBD"
+                                    Padding="8"
+                                    StrokeShape="RoundRectangle 6">
+                                    <Editor Text="{Binding ComentariosNiveles}"
+                                        Placeholder="Ej... Al drenar el aceite, este presentaba filtracion de agua necesita revision"
+                                        FontSize="13"
+                                        TextColor="#404040"/>
+                                </Border>
+                            </VerticalStackLayout>
+                        </Frame>
 
-                        <Label Text="Comentarios sobre Niveles del vehiculo"
-                                        FontSize="12"
-                                        TextColor="#757575"/>
-                        <Border BackgroundColor="White"
-                                         StrokeThickness=".7"
-                                         Stroke="#BDBDBD"
-                                         Padding="8"
-                                         StrokeShape="RoundRectangle 8">
-                            <Editor Text="{Binding ComentariosNiveles}"
-                                        Placeholder="Ej: El deposito del limpiaparabrisas tiene una fuga .."
-                                        FontSize="14"
-                                        AutoSize="TextChanges"
-                                        HeightRequest="120" />
-                        </Border>
                     </VerticalStackLayout>
                 </Frame>
                 <!-- Trabajos realizados al vehiculo-->
                 <Frame Padding="10"
+                   BorderColor="#C62828"
+                   HasShadow="True"
                    BackgroundColor="White"
                    CornerRadius="10">
 
                     <VerticalStackLayout Spacing="10">
-
                         <!-- TÍTULO -->
-                        <Label Text="Trabajos realizados al vehiculo"
-                           FontSize="15"
-                           HorizontalOptions="Center"
-                           FontAttributes="Bold"/>
-
+                        <Border BackgroundColor="#C62828"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 8"
+                            Padding="8">
+                            <Label Text="Trabajos realizados"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="White"/>
+                        </Border>
                         <!-- ENCABEZADOS -->
                         <Grid ColumnDefinitions="*,*" VerticalOptions="Center" >
 
                             <Label Grid.Column="1"
                                Text="Realizado"
+                               FontAttributes="Bold"
                                TextColor="Green"
                                HorizontalTextAlignment="Center"
                                FontSize="12"/>
@@ -1223,46 +1393,95 @@
                                  CheckedChanged="Radio_CheckedChanged"
                                  HorizontalOptions="Center"/>
                         </Grid>
-                        
-                        <Label Text="Comentarios sobre Trabajos Realizados al vehiculo"
-                                        FontSize="12"
-                                        TextColor="#757575"/>
+                        <Frame
+                             BackgroundColor="#FFEBEE"
+                             Padding="8"
+                             HasShadow="False"
+                             BorderColor="#D32F2F" 
+                             CornerRadius="6">
+                            <VerticalStackLayout Spacing="5">
+                                <Label Text="💬 Comentarios sobre Trabajos Realizados al vehiculo"
+                                     FontSize="12"
+                                     FontAttributes="Bold"
+                                     TextColor="#C62828"/>
+                                <Border BackgroundColor="White"
+                                     StrokeThickness="1"
+                                     Stroke="#BDBDBD"
+                                     Padding="8"
+                                     StrokeShape="RoundRectangle 6">
+                                    <Editor Text="{Binding ComentariosTrabajos}"
+                                         Placeholder="Ej...Faltaban 2 birlos de la rueda frontal derecha"
+                                         FontSize="13"
+                                         TextColor="#404040"/>
+                                </Border>
+                            </VerticalStackLayout>
+                        </Frame>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <Frame
+                             BackgroundColor="#E8F5E9"
+                             Padding="8"
+                             HasShadow="False"
+                             BorderColor="DarkGreen" 
+                             CornerRadius="6">
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="💬 Comentarios Generales sobre el vehiculo"
+                                     FontSize="12"
+                                     FontAttributes="Bold"
+                                     TextColor="DarkGreen" />
                         <Border BackgroundColor="White"
-                                         StrokeThickness=".7"
-                                         Stroke="#BDBDBD"
-                                         Padding="8"
-                                         StrokeShape="RoundRectangle 8">
-                            <Editor Text="{Binding ComentariosTrabajos}"
-                                        Placeholder="Ej: Faltaban 2 birlos de la rueda frontal derecha .."
-                                        FontSize="14"
-                                        AutoSize="TextChanges"
-                                        HeightRequest="120" />
+                                     StrokeThickness="1"
+                                     Stroke="#BDBDBD"
+                                     Padding="8"
+                                     StrokeShape="RoundRectangle 6">
+                            <Editor  Text="{Binding ComentariosGenerales}"
+                                         Placeholder="Ej... Servicio concluido con exito vehiculo en exelente estado"
+                                         FontSize="13"
+                                         TextColor="#404040"/>
                         </Border>
                     </VerticalStackLayout>
                 </Frame>
-                <Label Text="Comentarios Generales sobre el vehiculo"
-                                        FontSize="12"
-                                        TextColor="#757575"/>
-                <Border BackgroundColor="White"
-                                         StrokeThickness=".7"
-                                         Stroke="#BDBDBD"
-                                         Padding="8"
-                                         StrokeShape="RoundRectangle 8">
-                    <Editor Text="{Binding ComentariosGenerales}"
-                                        Placeholder="Ej: Servicio realizado con exito vehiculo en buen estado general.."
-                                        FontSize="14"
-                                        AutoSize="TextChanges"
-                                        HeightRequest="120" />
-                </Border>
-                <Button Text="💾 Finalizar Servicio"
-                    Command="{Binding GuardarCommand}"
-                    BackgroundColor="#4CAF50"
-                    TextColor="White"
-                    FontSize="18"
-                    FontAttributes="Bold"
-                    CornerRadius="10"
-                    HeightRequest="55"
-                    Margin="0,20,0,10"/>
+                
+                <BoxView HeightRequest="2" BackgroundColor="#333" Margin="20,10"/>
+
+
+
+                <Frame Padding="0"
+                           HorizontalOptions="End"
+                           HeightRequest="70"
+                           WidthRequest="300"
+                           Margin="0,0,0,8"
+                           CornerRadius="12"
+                           HasShadow="False"
+                           BackgroundColor="DarkGreen">
+
+                        <Grid HeightRequest="70"
+                                  Padding="6,0"
+                                  ColumnDefinitions="*,50">
+
+                            <!-- ICONO -->
+                            <ImageButton Grid.Column="1"
+                                     Command="{Binding GuardarCommand}"
+                                     BackgroundColor="Transparent"
+                                     Source="finalizar.png"
+                                     WidthRequest="70"
+                                     HeightRequest="65"                             
+                                     VerticalOptions="Center"/>
+
+                            <!-- TEXTO -->
+                            <Button Grid.Column="0"
+                                        Text="Finalizar Servicio"
+                                        Command="{Binding GuardarCommand}"
+                                        BackgroundColor="Transparent"
+                                        TextColor="White"
+                                        FontSize="16"
+                                        FontAttributes="Bold"
+                                        HorizontalOptions="FillAndExpand"/>
+
+                        </Grid>
+                    </Frame>
+
             </VerticalStackLayout>
         </ScrollView>
         

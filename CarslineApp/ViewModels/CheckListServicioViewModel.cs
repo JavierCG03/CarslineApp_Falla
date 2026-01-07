@@ -1,5 +1,6 @@
 ﻿using CarslineApp.Models;
 using CarslineApp.Services;
+using Microsoft.Maui.Controls;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -18,9 +19,18 @@ namespace CarslineApp.ViewModels
         private string _comentariosNiveles = string.Empty;
         private string _comentariosTrabajos = string.Empty;
         private string _comentariosGenerales = string.Empty;
+        private bool _trabajoFinalizado = false;
+
+
+        public string Orden { get; }
+        public string Vehiculo { get; }
+        public string Indicaciones { get; }
+        public string Trabajo { get; }
+        public string VehiculoVIN { get; }
+
         public CheckListServicioModel CheckList { get; }
 
-        public CheckListServicioViewModel(int trabajoId, int ordenId, string trabajo)
+        public CheckListServicioViewModel(int trabajoId, int ordenId, string orden, string trabajo, string vehiculo, string indicaciones, string VIN)
         {
             _apiService = new ApiService();
             CheckList = new CheckListServicioModel
@@ -29,6 +39,12 @@ namespace CarslineApp.ViewModels
                 OrdenId = ordenId,
                 Trabajo = trabajo
             };
+
+
+            Orden = orden;
+            Vehiculo = vehiculo;
+            Trabajo = trabajo;
+            VehiculoVIN = VIN;
 
             GuardarCommand = new Command(async () => await GuardarCheckList(), () => !IsLoading);
         }
@@ -71,7 +87,9 @@ namespace CarslineApp.ViewModels
         {
             get => _comentariosGenerales;
             set { _comentariosGenerales = value; OnPropertyChanged(); }
+
         }
+
         public bool IsLoading
         {
             get => _isLoading;
@@ -141,6 +159,30 @@ namespace CarslineApp.ViewModels
             return sb.ToString().Trim();
         }
 
+        
+        public async Task RestablecerEstadoTrabajo()
+        {
+            if (_trabajoFinalizado) return; // Si ya finalizó, no hacer nada
+
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"🔄 Restableciendo trabajo {CheckList.TrabajoId} a PENDIENTE");
+                int tecnicoId = Preferences.Get("user_id", 0);
+                // Llamar al servicio para restablecer el estado
+                var response = await _apiService.RestablecerTrabajoAsync(CheckList.TrabajoId, tecnicoId);
+
+                if (!response.Success)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", response.Message, "OK");
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ Error al restablecer estado: {ex.Message}");
+            }
+        }
+
 
         private async Task GuardarCheckList()
         {
@@ -153,7 +195,7 @@ namespace CarslineApp.ViewModels
                 {
                     await Application.Current.MainPage.DisplayAlert(
                         "⚠️ Campos incompletos",
-                        "Por favor completa todos los campos del checklist antes de guardar",
+                        "Por favor completa todos los campos del checklist antes de Finalizar",
                         "OK");
                     return;
                 }
@@ -166,15 +208,10 @@ namespace CarslineApp.ViewModels
                         "OK");
                     return;
                 }
-
-                if (string.IsNullOrWhiteSpace(CheckList.Bieletas))
-                {
-
-                }
                 // Confirmar guardado
                 bool confirmar = await Application.Current.MainPage.DisplayAlert(
                     "Confirmar",
-                    "¿Estás seguro de guardar el checklist?\n\n✅ Esto marcará el trabajo como COMPLETADO",
+                    "¿Estás seguro de Finalizar el checklist?\n\n✅ Esto marcará el trabajo como COMPLETADO",
                     "Sí, guardar",
                     "Cancelar");
 
@@ -205,6 +242,8 @@ namespace CarslineApp.ViewModels
 
                 if (response.Success)
                 {
+                    _trabajoFinalizado = true;
+
                     await Application.Current.MainPage.DisplayAlert(
                         "✅ Éxito",
                         "Checklist guardado exitosamente\n\nEl trabajo ha sido marcado como completado",
@@ -217,7 +256,7 @@ namespace CarslineApp.ViewModels
                 {
                     await Application.Current.MainPage.DisplayAlert(
                         "❌ Error",
-                        $"Error al guardar:\n{response.Message}",
+                        $"Error al Finalizar:\n{response.Message}",
                         "OK");
                 }
             }
@@ -228,7 +267,7 @@ namespace CarslineApp.ViewModels
 
                 await Application.Current.MainPage.DisplayAlert(
                     "❌ Error",
-                    $"Error al guardar:\n{ex.Message}",
+                    $"Error al Finalizar:\n{ex.Message}",
                     "OK");
             }
             finally

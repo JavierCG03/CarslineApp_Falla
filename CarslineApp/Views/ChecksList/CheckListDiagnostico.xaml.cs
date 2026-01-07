@@ -1,4 +1,4 @@
-
+Ôªø
 using CarslineApp.Models;
 using CarslineApp.Services;
 
@@ -11,6 +11,7 @@ public partial class CheckListDiagnostico : ContentPage
     private readonly int _trabajoId;
     private readonly int _ordenId;
     private readonly string _trabajo;
+    private bool _trabajoFinalizado = false;
 
 
 
@@ -32,8 +33,8 @@ public partial class CheckListDiagnostico : ContentPage
     {
         bool confirmar = await DisplayAlert(
             "Confirmar",
-            "øDeseas pausar el diagnÛstico?",
-            "SÌ",
+            "¬øDeseas pausar el diagn√≥stico?",
+            "S√≠",
             "Cancelar");
 
         if (!confirmar) return;
@@ -49,7 +50,7 @@ public partial class CheckListDiagnostico : ContentPage
         if (string.IsNullOrWhiteSpace(motivo))
         {
             await DisplayAlert(
-                "AtenciÛn",
+                "Atenci√≥n",
                 "El motivo de la pausa es obligatorio",
                 "OK");
             return;
@@ -65,7 +66,7 @@ public partial class CheckListDiagnostico : ContentPage
 
         if (response.Success)
         {
-            await DisplayAlert("…xito", response.Message, "OK");
+            await DisplayAlert("√âxito", response.Message, "OK");
             await Navigation.PopAsync();
         }
         else
@@ -81,7 +82,7 @@ public partial class CheckListDiagnostico : ContentPage
             string.IsNullOrWhiteSpace(txtComentarioGeneral.Text))
         {
             await DisplayAlert(
-                "AtenciÛn",
+                "Atenci√≥n",
                 "Debes agregar al menos un comentario",
                 "OK");
             return;
@@ -89,8 +90,8 @@ public partial class CheckListDiagnostico : ContentPage
 
         bool confirmar = await DisplayAlert(
             "Confirmar",
-            "øDeseas concluir la reparacion?",
-            "SÌ",
+            "¬øDeseas concluir la reparacion?",
+            "S√≠",
             "Cancelar");
 
         if (!confirmar) return;
@@ -117,7 +118,8 @@ public partial class CheckListDiagnostico : ContentPage
 
             if (response.Success)
             {
-                await DisplayAlert("…xito", response.Message, "OK");
+                _trabajoFinalizado = true; // Marcar como finalizado para evitar restablecimiento
+                await DisplayAlert("√âxito", response.Message, "OK");
                 await Navigation.PopAsync();
             }
             else
@@ -141,7 +143,7 @@ public partial class CheckListDiagnostico : ContentPage
 
         if (!string.IsNullOrWhiteSpace(txtComentarioReparacion.Text))
         {
-            sb.AppendLine("ReparaciÛn:");
+            sb.AppendLine("Reparaci√≥n:");
             sb.AppendLine(txtComentarioReparacion.Text.Trim());
         }
 
@@ -153,5 +155,27 @@ public partial class CheckListDiagnostico : ContentPage
         }
 
         return sb.ToString().Trim();
+    }
+    protected override async void OnDisappearing()
+    {
+        base.OnDisappearing();
+        if (_trabajoFinalizado) return; // Si ya finaliz√≥, no hacer nada
+
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"üîÑ Restableciendo trabajo {_trabajoId} a PENDIENTE");
+            int tecnicoId = Preferences.Get("user_id", 0);
+            var response = await _apiService.RestablecerTrabajoAsync(_trabajoId, tecnicoId);
+
+            if (!response.Success)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", response.Message, "OK");
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"‚ùå Error al restablecer estado: {ex.Message}");
+        }
     }
 }

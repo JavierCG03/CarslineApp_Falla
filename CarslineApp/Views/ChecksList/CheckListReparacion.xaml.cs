@@ -11,6 +11,7 @@ public partial class CheckListReparacion : ContentPage
     private readonly int _trabajoId;
     private readonly int _ordenId;
     private readonly string _trabajo;
+    private bool _trabajoFinalizado = false;
 
 
 
@@ -115,6 +116,7 @@ public partial class CheckListReparacion : ContentPage
 
             if (response.Success)
             {
+                _trabajoFinalizado = true; // Marcar como finalizado
                 await DisplayAlert("Éxito", response.Message, "OK");
                 await Navigation.PopAsync();
             }
@@ -151,5 +153,27 @@ public partial class CheckListReparacion : ContentPage
         }
 
         return sb.ToString().Trim();
+    }
+    protected override async void OnDisappearing()
+    {
+        base.OnDisappearing();
+        if (_trabajoFinalizado) return; // Si ya finalizó, no hacer nada
+
+        try
+        {
+            System.Diagnostics.Debug.WriteLine($"?? Restableciendo trabajo {_trabajoId} a PENDIENTE");
+            int tecnicoId = Preferences.Get("user_id", 0);
+            var response = await _apiService.RestablecerTrabajoAsync(_trabajoId, tecnicoId);
+
+            if (!response.Success)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", response.Message, "OK");
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"? Error al restablecer estado: {ex.Message}");
+        }
     }
 }

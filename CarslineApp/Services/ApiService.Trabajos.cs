@@ -255,6 +255,52 @@ namespace CarslineApp.Services
                 };
             }
         }
+        public async Task<TrabajoResponse> RestablecerTrabajoAsync(
+        int trabajoId,
+        int tecnicoId)
+        {
+            try
+            {
+                var request = new HttpRequestMessage(
+                    HttpMethod.Put,
+                    $"{BaseUrl}/trabajos/restablecer-pendiente/{trabajoId}"
+                );
+
+                request.Headers.Add("X-User-Id", tecnicoId.ToString());
+
+                var response = await _httpClient.SendAsync(request);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+
+                    return new TrabajoResponse
+                    {
+                        Success = false,
+                        Message = string.IsNullOrWhiteSpace(error)
+                            ? $"Error HTTP: {response.StatusCode}"
+                            : error
+                    };
+                }
+
+                var result = await response.Content
+                    .ReadFromJsonAsync<TrabajoResponse>();
+
+                return result ?? new TrabajoResponse
+                {
+                    Success = false,
+                    Message = "Respuesta vacía del servidor"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new TrabajoResponse
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
 
 
         public async Task<TrabajoResponse> CompletarTrabajoAsync(

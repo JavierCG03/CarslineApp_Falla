@@ -129,8 +129,11 @@ namespace CarslineApp.ViewModels.ViewModelsHome
                 new CheckListServicioPage(
                     trabajo.Id,
                     trabajo.OrdenGeneralId,
+                    trabajo.NumeroOrden,
                     trabajo.Trabajo,
-                    trabajo.VehiculoCompleto
+                    trabajo.VehiculoCompleto,
+                    trabajo.IndicacionesTrabajo,
+                    trabajo.VIN
                 )
             );
         }
