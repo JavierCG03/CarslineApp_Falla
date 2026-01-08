@@ -23,6 +23,7 @@ namespace CarslineApp.ViewModels
 
 
         public string Orden { get; }
+        public int TrabajoId { get; }
         public string Vehiculo { get; }
         public string Indicaciones { get; }
         public string Trabajo { get; }
@@ -40,13 +41,14 @@ namespace CarslineApp.ViewModels
                 Trabajo = trabajo
             };
 
-
+            TrabajoId = trabajoId;
             Orden = orden;
             Vehiculo = vehiculo;
             Trabajo = trabajo;
             VehiculoVIN = VIN;
 
             GuardarCommand = new Command(async () => await GuardarCheckList(), () => !IsLoading);
+            PausarCommand = new Command(async () => await PausarTrabajo(), () => !IsLoading);
         }
         public string ComentariosDireccion
         {
@@ -102,6 +104,54 @@ namespace CarslineApp.ViewModels
         }
 
         public ICommand GuardarCommand { get; }
+
+        public ICommand PausarCommand { get; }
+
+        private async Task PausarTrabajo()
+        {
+            bool confirmar = await Application.Current.MainPage.DisplayAlert(
+                "Confirmar",
+                "¿Deseas pausar el servicio?",
+                "Sí",
+                "Cancelar");
+            if (!confirmar) return;
+
+            // ?? Pedir motivo
+            string motivo = await Application.Current.MainPage.DisplayPromptAsync(
+                "Motivo de la pausa",
+                "Describe el motivo de la pausa",
+                "Aceptar",
+                "Cancelar",
+                placeholder: "Ej. Esperando refacciones");
+
+            if (string.IsNullOrWhiteSpace(motivo))
+            {
+                await Application.Current.MainPage.DisplayAlert(
+                    "Atención",
+                    "El motivo de la pausa es obligatorio",
+                    "OK");
+                return;
+            }
+
+            int tecnicoId = Preferences.Get("user_id", 0);
+
+            var response = await _apiService.PausarTrabajoAsync(
+                TrabajoId,
+                tecnicoId,
+                motivo.Trim()
+            );
+
+            if (response.Success)
+            {
+                _trabajoFinalizado = true;
+                await Application.Current.MainPage.DisplayAlert("Éxito", response.Message, "OK");
+                await Application.Current.MainPage.Navigation.PopAsync();
+            }
+            else
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", response.Message, "OK");
+            }
+        }
 
         public void SetValor(string campo, object valor)
         {

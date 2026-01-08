@@ -941,7 +941,7 @@
                                 IsVisible="{Binding MostrarBotonCrear}"
                                 BackgroundColor="#4CAF50"
                                 TextColor="White"
-                                CornerRadius="0"
+                                CornerRadius="10"
                                 HeightRequest="55"
                                 FontAttributes="Bold"
                                 FontSize="16"/>
@@ -1194,7 +1194,7 @@
                                 IsVisible="{Binding MostrarBotonCrear}"
                                 BackgroundColor="#4CAF50"
                                 TextColor="White"
-                                CornerRadius="0"
+                                CornerRadius="10"
                                 HeightRequest="55"
                                 FontAttributes="Bold"
                                 FontSize="16"/>
@@ -1365,7 +1365,7 @@
                                 IsVisible="{Binding MostrarBotonCrear}"
                                 BackgroundColor="#4CAF50"
                                 TextColor="White"
-                                CornerRadius="0"
+                                CornerRadius="10"
                                 HeightRequest="55"
                                 FontAttributes="Bold"
                                 FontSize="16"/>
@@ -1718,7 +1718,7 @@
                                  IsVisible="{Binding MostrarBotonCrear}"
                                  BackgroundColor="#4CAF50"
                                  TextColor="White"
-                                 CornerRadius="0"
+                                 CornerRadius="10"
                                  HeightRequest="55"
                                  FontAttributes="Bold"
                                  FontSize="16"/>

@@ -15,7 +15,7 @@ public partial class CheckListReparacion : ContentPage
 
 
 
-    public CheckListReparacion(int trabajoId, int ordenId, string trabajo, string vehiculo, string indicacionestrabajo)
+    public CheckListReparacion(int trabajoId, int ordenId,string orden, string trabajo, string vehiculo, string indicacionestrabajo, string VIN)
     {
         InitializeComponent();
 
@@ -24,6 +24,8 @@ public partial class CheckListReparacion : ContentPage
         _trabajo = trabajo;
 
         // Datos para mostrar en la vista
+        lblVIN.Text = VIN;
+        lblOrden.Text =orden;
         lblTrabajo.Text = trabajo;
         lblVehiculo.Text = vehiculo;
         lblindicacionesTrabajo.Text = indicacionestrabajo;
@@ -65,6 +67,7 @@ public partial class CheckListReparacion : ContentPage
 
         if (response.Success)
         {
+            _trabajoFinalizado = true;
             await DisplayAlert("Éxito", response.Message, "OK");
             await Navigation.PopAsync();
         }
@@ -115,7 +118,7 @@ public partial class CheckListReparacion : ContentPage
             );
 
             if (response.Success)
-            {
+            {               
                 _trabajoFinalizado = true; // Marcar como finalizado
                 await DisplayAlert("Éxito", response.Message, "OK");
                 await Navigation.PopAsync();
@@ -147,7 +150,6 @@ public partial class CheckListReparacion : ContentPage
 
         if (!string.IsNullOrWhiteSpace(txtComentarioGeneral.Text))
         {
-            sb.AppendLine();
             sb.AppendLine("Comentarios generales:");
             sb.AppendLine(txtComentarioGeneral.Text.Trim());
         }

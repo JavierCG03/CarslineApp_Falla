@@ -144,9 +144,11 @@ namespace CarslineApp.ViewModels.ViewModelsHome
                 new CheckListReparacion(
                     trabajo.Id,
                     trabajo.OrdenGeneralId,
+                    trabajo.NumeroOrden,
                     trabajo.Trabajo,
                     trabajo.VehiculoCompleto,
-                    trabajo.IndicacionesTrabajo
+                    trabajo.IndicacionesTrabajo,
+                    trabajo.VIN
                 )
             );
         }
@@ -157,9 +159,11 @@ namespace CarslineApp.ViewModels.ViewModelsHome
                 new CheckListDiagnostico(
                     trabajo.Id,
                     trabajo.OrdenGeneralId,
+                    trabajo.NumeroOrden,
                     trabajo.Trabajo,
                     trabajo.VehiculoCompleto,
-                    trabajo.IndicacionesTrabajo
+                    trabajo.IndicacionesTrabajo,
+                    trabajo.VIN
                 )
             );
         }
@@ -170,9 +174,11 @@ namespace CarslineApp.ViewModels.ViewModelsHome
                 new CheckListGarantia(
                     trabajo.Id,
                     trabajo.OrdenGeneralId,
+                    trabajo.NumeroOrden,
                     trabajo.Trabajo,
                     trabajo.VehiculoCompleto,
-                    trabajo.IndicacionesTrabajo
+                    trabajo.IndicacionesTrabajo,
+                    trabajo.VIN
                 )
             );
         }

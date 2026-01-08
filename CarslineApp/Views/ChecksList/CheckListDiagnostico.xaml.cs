@@ -15,7 +15,7 @@ public partial class CheckListDiagnostico : ContentPage
 
 
 
-    public CheckListDiagnostico(int trabajoId, int ordenId, string trabajo, string vehiculo, string indicacionestrabajo)
+    public CheckListDiagnostico(int trabajoId, int ordenId, string orden, string trabajo, string vehiculo, string indicacionestrabajo, string VIN)
     {
         InitializeComponent();
 
@@ -24,6 +24,8 @@ public partial class CheckListDiagnostico : ContentPage
         _trabajo = trabajo;
 
         // Datos para mostrar en la vista
+        lblVIN.Text = VIN;
+        lblOrden.Text = orden;
         lblTrabajo.Text = trabajo;
         lblVehiculo.Text = vehiculo;
         lblindicacionesTrabajo.Text = indicacionestrabajo;
@@ -66,6 +68,7 @@ public partial class CheckListDiagnostico : ContentPage
 
         if (response.Success)
         {
+            _trabajoFinalizado = true;
             await DisplayAlert("Éxito", response.Message, "OK");
             await Navigation.PopAsync();
         }
@@ -78,19 +81,19 @@ public partial class CheckListDiagnostico : ContentPage
 
     private async void FinalizarTrabajo_Clicked(object sender, EventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(txtComentarioReparacion.Text) &&
+        if (string.IsNullOrWhiteSpace(txtComentarioReparacion.Text) ||
             string.IsNullOrWhiteSpace(txtComentarioGeneral.Text))
         {
             await DisplayAlert(
                 "Atención",
-                "Debes agregar al menos un comentario",
+                "Debes agregar concluiones y reparaciones",
                 "OK");
             return;
         }
 
         bool confirmar = await DisplayAlert(
             "Confirmar",
-            "¿Deseas concluir la reparacion?",
+            "¿Deseas concluir el diagnostico?",
             "Sí",
             "Cancelar");
 
@@ -118,7 +121,7 @@ public partial class CheckListDiagnostico : ContentPage
 
             if (response.Success)
             {
-                _trabajoFinalizado = true; // Marcar como finalizado para evitar restablecimiento
+                _trabajoFinalizado = true; 
                 await DisplayAlert("Éxito", response.Message, "OK");
                 await Navigation.PopAsync();
             }
@@ -143,14 +146,13 @@ public partial class CheckListDiagnostico : ContentPage
 
         if (!string.IsNullOrWhiteSpace(txtComentarioReparacion.Text))
         {
-            sb.AppendLine("Reparación:");
+            sb.AppendLine("Fallas detectadas:");
             sb.AppendLine(txtComentarioReparacion.Text.Trim());
         }
 
         if (!string.IsNullOrWhiteSpace(txtComentarioGeneral.Text))
         {
-            sb.AppendLine();
-            sb.AppendLine("Comentarios generales:");
+            sb.AppendLine("Reparaciones necesarias:");
             sb.AppendLine(txtComentarioGeneral.Text.Trim());
         }
 

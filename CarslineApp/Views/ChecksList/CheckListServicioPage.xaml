@@ -57,10 +57,6 @@
 
                 </Grid>
                 
-
-
-
-
                 <!--Sistema de Direccion-->
                 <Frame Padding="10"
                    BackgroundColor="White"
@@ -1445,42 +1441,51 @@
                 
                 <BoxView HeightRequest="2" BackgroundColor="#333" Margin="20,10"/>
 
+                <Grid ColumnDefinitions="*,*">
 
+                    <!-- Botón Pausar -->
+                    <Frame Grid.Column="0"
+                       Padding="0"
+                       HorizontalOptions="Start"
+                       HeightRequest="70"
+                       Margin="0,0,0,8"
+                       CornerRadius="12"
+                       HasShadow="False"
+                       BackgroundColor="DarkOrange">
 
-                <Frame Padding="0"
-                           HorizontalOptions="End"
-                           HeightRequest="70"
-                           WidthRequest="300"
-                           Margin="0,0,0,8"
-                           CornerRadius="12"
-                           HasShadow="False"
-                           BackgroundColor="DarkGreen">
-
-                        <Grid HeightRequest="70"
-                                  Padding="6,0"
-                                  ColumnDefinitions="*,50">
-
-                            <!-- ICONO -->
-                            <ImageButton Grid.Column="1"
-                                     Command="{Binding GuardarCommand}"
-                                     BackgroundColor="Transparent"
-                                     Source="finalizar.png"
-                                     WidthRequest="70"
-                                     HeightRequest="65"                             
-                                     VerticalOptions="Center"/>
-
-                            <!-- TEXTO -->
-                            <Button Grid.Column="0"
-                                        Text="Finalizar Servicio"
-                                        Command="{Binding GuardarCommand}"
-                                        BackgroundColor="Transparent"
-                                        TextColor="White"
-                                        FontSize="16"
-                                        FontAttributes="Bold"
-                                        HorizontalOptions="FillAndExpand"/>
-
-                        </Grid>
+                        <Button Text="Pausar"
+                            Command="{Binding PausarCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="White"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            ImageSource="pausa.png"
+                            ContentLayout="right,30"
+                            HorizontalOptions="FillAndExpand"/>
                     </Frame>
+
+                    <!-- Botón Finalizar -->
+                    <Frame Grid.Column="1"
+                       Padding="0"
+                       HorizontalOptions="End"
+                       HeightRequest="70"
+                       Margin="0,0,0,8"
+                       CornerRadius="12"
+                       HasShadow="False"
+                       BackgroundColor="DarkGreen">
+
+                        <Button Text="Finalizar"
+                            Command="{Binding GuardarCommand}"
+                            BackgroundColor="Transparent"
+                            TextColor="White"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            ImageSource="finalizar.png"
+                            ContentLayout="right,30"
+                            HorizontalOptions="FillAndExpand"/>
+                    </Frame>
+
+                </Grid>
 
             </VerticalStackLayout>
         </ScrollView>
